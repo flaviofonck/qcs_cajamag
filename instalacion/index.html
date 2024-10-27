@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../introduccion/">
+        <link rel="prev" href="..">
       
       
-        <link rel="next" href="../codigo/funciones/">
+        <link rel="next" href="../buenaspracticas/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#instalacion-y-configuracion" class="md-skip">
+        <a href="#instalacion-y-configuracion-del-entorno-para-el-procesamiento-de-datos-del-data-warehouse" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -205,27 +205,7 @@
         
   
   <span class="md-ellipsis">
-    INDICE
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../introduccion/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    FUNCIONES
+    INTRODUCCIÓN
   </span>
   
 
@@ -287,6 +267,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#introduccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introducción
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#librerias-necesarias" class="md-nav__link">
     <span class="md-ellipsis">
       Librerías Necesarias
@@ -302,12 +291,174 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuración del Entorno">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creacion-de-entorno-virtual" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creación de Entorno Virtual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-de-dependencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación de Dependencias
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#importacion-de-funciones" class="md-nav__link">
+  <a href="#importacion-de-funciones-desde-funcionespy" class="md-nav__link">
     <span class="md-ellipsis">
-      Importación de Funciones
+      Importación de Funciones desde Funciones.py
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Importación de Funciones desde Funciones.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-guardar_en_dwhdf-tabla-logger-multiple-if_exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. guardar_en_dwh(df, tabla, logger, multiple, if_exists):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-obtener_conexionnombre_bd" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. obtener_conexion(nombre_bd):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-setup_loggerlog_filename-log_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. setup_logger(log_filename, log_level):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-limpiar_htmltexto_html" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. limpiar_html(texto_html):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-log_tiempologger-mensaje-tiempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. log_tiempo(logger, mensaje, tiempo):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-cargar_tablasmotor-queries-df_structure-logger" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. cargar_tablas(motor, queries, df_structure, logger):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-storeduplicatednombre_archivo-columnas-dataframe-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. StoreDuplicated(nombre_archivo, columnas, dataframe, ruta):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-testfunciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. testfunciones():
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-estandarizar_direcciondireccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. estandarizar_direccion(direccion):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-marcar_direcciones_estandarizadasdf-columna" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. marcar_direcciones_estandarizadas(df, columna):
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-del-entorno-de-trabajo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración del Entorno de Trabajo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuración del Entorno de Trabajo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-inicial-del-logger" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración Inicial del Logger
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejecucion-de-funciones-de-conexion-y-procesamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecución de Funciones de Conexión y Procesamiento
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusión
     </span>
   </a>
   
@@ -317,6 +468,26 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buenaspracticas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BUENAS PRACTICAS
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -397,7 +568,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 1
+    1. Bodega 1
   </span>
   
 
@@ -407,7 +578,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_1">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 1
+            1. Bodega 1
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -671,7 +842,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 2
+    2. Bodega 2
   </span>
   
 
@@ -681,7 +852,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 2
+            2. Bodega 2
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -987,7 +1158,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 3
+    3. Bodega 3
   </span>
   
 
@@ -997,7 +1168,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 3
+            3. Bodega 3
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1072,7 +1243,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 4
+    4. Bodega 4
   </span>
   
 
@@ -1082,7 +1253,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 4
+            4. Bodega 4
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1178,7 +1349,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 5
+    5. Bodega 5
   </span>
   
 
@@ -1188,7 +1359,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_5">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 5
+            5. Bodega 5
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1284,7 +1455,7 @@
             
   
   <span class="md-ellipsis">
-    Bodega 6
+    6. Bodega 6
   </span>
   
 
@@ -1294,7 +1465,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_6">
             <span class="md-nav__icon md-icon"></span>
-            Bodega 6
+            6. Bodega 6
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1403,6 +1574,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#introduccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introducción
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#librerias-necesarias" class="md-nav__link">
     <span class="md-ellipsis">
       Librerías Necesarias
@@ -1418,12 +1598,174 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuración del Entorno">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creacion-de-entorno-virtual" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creación de Entorno Virtual
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacion-de-dependencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instalación de Dependencias
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#importacion-de-funciones" class="md-nav__link">
+  <a href="#importacion-de-funciones-desde-funcionespy" class="md-nav__link">
     <span class="md-ellipsis">
-      Importación de Funciones
+      Importación de Funciones desde Funciones.py
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Importación de Funciones desde Funciones.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-guardar_en_dwhdf-tabla-logger-multiple-if_exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. guardar_en_dwh(df, tabla, logger, multiple, if_exists):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-obtener_conexionnombre_bd" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. obtener_conexion(nombre_bd):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-setup_loggerlog_filename-log_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. setup_logger(log_filename, log_level):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-limpiar_htmltexto_html" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. limpiar_html(texto_html):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-log_tiempologger-mensaje-tiempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. log_tiempo(logger, mensaje, tiempo):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-cargar_tablasmotor-queries-df_structure-logger" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. cargar_tablas(motor, queries, df_structure, logger):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-storeduplicatednombre_archivo-columnas-dataframe-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. StoreDuplicated(nombre_archivo, columnas, dataframe, ruta):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-testfunciones" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. testfunciones():
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-estandarizar_direcciondireccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. estandarizar_direccion(direccion):
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-marcar_direcciones_estandarizadasdf-columna" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. marcar_direcciones_estandarizadas(df, columna):
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracion-del-entorno-de-trabajo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración del Entorno de Trabajo
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuración del Entorno de Trabajo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuracion-inicial-del-logger" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuración Inicial del Logger
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ejecucion-de-funciones-de-conexion-y-procesamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecución de Funciones de Conexión y Procesamiento
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusión
     </span>
   </a>
   
@@ -1444,51 +1786,123 @@
                   
 
 
-<h1 id="instalacion-y-configuracion">Instalación y Configuración<a class="headerlink" href="#instalacion-y-configuracion" title="Permanent link">&para;</a></h1>
-<p>Este proyecto requiere la instalación de las siguientes librerías de Python y la configuración adecuada para la conexión a las bases de datos.</p>
+<h1 id="instalacion-y-configuracion-del-entorno-para-el-procesamiento-de-datos-del-data-warehouse">Instalación y Configuración del Entorno para el Procesamiento de Datos del Data Warehouse<a class="headerlink" href="#instalacion-y-configuracion-del-entorno-para-el-procesamiento-de-datos-del-data-warehouse" title="Permanent link">&para;</a></h1>
+<h2 id="introduccion">Introducción<a class="headerlink" href="#introduccion" title="Permanent link">&para;</a></h2>
+<p>Este documento presenta los pasos necesarios para configurar un entorno que permita la instalación y configuración de todas las dependencias necesarias para ejecutar procesos de carga y transformación de datos dentro de un Data Warehouse (DWH). Además, se detalla el uso de las funciones contenidas en <code>Funciones.py</code> y cómo se aplican en el flujo de trabajo descrito en los notebook.</p>
 <h2 id="librerias-necesarias">Librerías Necesarias<a class="headerlink" href="#librerias-necesarias" title="Permanent link">&para;</a></h2>
+<p>Para ejecutar correctamente el proyecto, es necesario instalar las siguientes librerías de Python:</p>
 <ul>
-<li><code>sqlalchemy</code></li>
-<li><code>pandas</code></li>
-<li><code>numpy</code></li>
-<li><code>logging</code></li>
+<li><code>sqlalchemy</code>: Para la conexión con bases de datos.</li>
+<li><code>pandas</code>: Para la manipulación y análisis de datos.</li>
+<li><code>beautifulsoup4</code>: Para la limpieza de datos en formato HTML.</li>
+<li><code>concurrent.futures</code>: Para la paralelización de tareas.</li>
+<li><code>numpy</code>: Para el manejo de arreglos y cálculos numéricos.</li>
+<li><code>logging</code>: Para el registro de actividades y errores en el proceso ETL.</li>
+<li><code>os</code>: Para la gestión del sistema operativo y rutas de archivos.</li>
+<li><code>sys</code>: Para modificar el <code>sys.path</code> y permitir la importación de módulos personalizados.</li>
+<li><code>datetime</code>: Para el manejo de fechas y tiempos.</li>
+<li><code>dateutil.relativedelta</code>: Para operaciones avanzadas con fechas.</li>
 </ul>
 <h2 id="configuracion-del-entorno">Configuración del Entorno<a class="headerlink" href="#configuracion-del-entorno" title="Permanent link">&para;</a></h2>
-<p>Para configurar el entorno, se recomienda usar un entorno virtual. Los pasos para instalar las dependencias son los siguientes:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>sqlalchemy<span class="w"> </span>pandas<span class="w"> </span>numpy<span class="w"> </span>logging
+<p>Para configurar el entorno, se recomienda usar un entorno virtual que permita mantener las dependencias organizadas y aisladas de otros proyectos. Los pasos para instalar las dependencias son los siguientes:</p>
+<h3 id="creacion-de-entorno-virtual">Creación de Entorno Virtual<a class="headerlink" href="#creacion-de-entorno-virtual" title="Permanent link">&para;</a></h3>
+<p>Primero, cree un entorno virtual:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>etl_env
 </code></pre></div>
-<h2 id="importacion-de-funciones">Importación de Funciones<a class="headerlink" href="#importacion-de-funciones" title="Permanent link">&para;</a></h2>
-<p>El proyecto utiliza funciones definidas externamente, todas centralizadas en el archivo <code>Funciones.py</code>. A continuación, se describe la utilidad de este archivo y sus funciones.</p>
-<p>--https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/--</p>
-<div class="grid cards">
+<p>Luego, active el entorno:</p>
 <ul>
-<li>
-<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 4a8 8 0 0 1 8 8 8 8 0 0 1-8 8 8 8 0 0 1-8-8 8 8 0 0 1 8-8m0 2a6 6 0 0 0-6 6 6 6 0 0 0 6 6 6 6 0 0 0 6-6 6 6 0 0 0-6-6m-1 2h1.5v3.78l2.33 2.33-1.06 1.06L14 12.4zM2 18a1 1 0 0 1-1-1 1 1 0 0 1 1-1h3.83c.31.71.71 1.38 1.17 2zm1-5a1 1 0 0 1-1-1 1 1 0 0 1 1-1h2.05L5 12l.05 1zm1-5a1 1 0 0 1-1-1 1 1 0 0 1 1-1h3c-.46.62-.86 1.29-1.17 2z"/></svg></span> <strong>Set up in 5 minutes</strong></p>
-<hr />
-<p>Install <a href="#"><code>mkdocs-material</code></a> with <a href="#"><code>pip</code></a> and get up
-and running in minutes</p>
-<p><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Getting started</a></p>
-</li>
-<li>
-<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1M338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z"/></svg></span> <strong>It's just Markdown</strong></p>
-<hr />
-<p>Focus on your content and generate a responsive and searchable static site</p>
-<p><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Reference</a></p>
-</li>
-<li>
-<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 8h3v12h1v1h-4v-1h1v-3h-4l-1.5 3H14v1h-4v-1h1zm1 1-3.5 7H18zM5 3h5c1.11 0 2 .89 2 2v11H9v-5H6v5H3V5c0-1.11.89-2 2-2m1 2v4h3V5z"/></svg></span> <strong>Made to measure</strong></p>
-<hr />
-<p>Change the colors, fonts, language, icons, logo and more with a few lines</p>
-<p><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Customization</a></p>
-</li>
-<li>
-<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z"/></svg></span> <strong>Open Source, MIT</strong></p>
-<hr />
-<p>Material for MkDocs is licensed under MIT and available on [GitHub]</p>
-<p><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> License</a></p>
-</li>
+<li>En Windows:</li>
 </ul>
-</div>
+<div class="highlight"><pre><span></span><code>etl_env<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+</code></pre></div>
+<ul>
+<li>En Linux/macOS:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>etl_env/bin/activate
+</code></pre></div>
+<h3 id="instalacion-de-dependencias">Instalación de Dependencias<a class="headerlink" href="#instalacion-de-dependencias" title="Permanent link">&para;</a></h3>
+<p>Una vez que el entorno esté activado, instale las dependencias:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>sqlalchemy<span class="w"> </span>pandas<span class="w"> </span>beautifulsoup4<span class="w"> </span>numpy<span class="w"> </span>logging<span class="w"> </span>python-dateutil<span class="w"> </span>concurrent.futures
+</code></pre></div>
+<h2 id="importacion-de-funciones-desde-funcionespy">Importación de Funciones desde <code>Funciones.py</code><a class="headerlink" href="#importacion-de-funciones-desde-funcionespy" title="Permanent link">&para;</a></h2>
+<p>El proyecto utiliza funciones definidas externamente en el archivo <code>Funciones.py</code>. Este archivo incluye un conjunto de funciones personalizadas que facilitan la conexión a las bases de datos, la transformación de datos y el almacenamiento en el Data Warehouse. Algunas de las funciones principales contenidas en <code>Funciones.py</code> son:</p>
+<h3 id="1-guardar_en_dwhdf-tabla-logger-multiple-if_exists">1. <strong><code>guardar_en_dwh(df, tabla, logger, multiple, if_exists)</code></strong>:<a class="headerlink" href="#1-guardar_en_dwhdf-tabla-logger-multiple-if_exists" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Guarda un <code>DataFrame</code> en una tabla específica del Data Warehouse.</li>
+<li><strong>Argumentos</strong>: Permite especificar la tabla, el logger para el registro del proceso y si los datos se deben agregar o reemplazar.</li>
+</ul>
+<h3 id="2-obtener_conexionnombre_bd">2. <strong><code>obtener_conexion(nombre_bd)</code></strong>:<a class="headerlink" href="#2-obtener_conexionnombre_bd" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Proporciona la cadena de conexión para conectarse a una base de datos específica.</li>
+<li><strong>Uso</strong>: Utilizado para establecer la conexión con las bases de datos.</li>
+</ul>
+<h3 id="3-setup_loggerlog_filename-log_level">3. <strong><code>setup_logger(log_filename, log_level)</code></strong>:<a class="headerlink" href="#3-setup_loggerlog_filename-log_level" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Configura el logger para registrar eventos y errores durante la ejecución del proceso ETL.</li>
+<li><strong>Argumentos</strong>: El nombre del archivo de log y el nivel de detalle (INFO, DEBUG, etc.).</li>
+</ul>
+<h3 id="4-limpiar_htmltexto_html">4. <strong><code>limpiar_html(texto_html)</code></strong>:<a class="headerlink" href="#4-limpiar_htmltexto_html" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Utiliza <code>BeautifulSoup</code> para limpiar el texto HTML, extrayendo únicamente el contenido textual y eliminando etiquetas HTML.</li>
+</ul>
+<h3 id="5-log_tiempologger-mensaje-tiempo">5. <strong><code>log_tiempo(logger, mensaje, tiempo)</code></strong>:<a class="headerlink" href="#5-log_tiempologger-mensaje-tiempo" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Registra el tiempo transcurrido para una operación específica en el proceso ETL.</li>
+<li><strong>Argumentos</strong>: Recibe el logger, un mensaje descriptivo y el tiempo transcurrido.</li>
+</ul>
+<h3 id="6-cargar_tablasmotor-queries-df_structure-logger">6. <strong><code>cargar_tablas(motor, queries, df_structure, logger)</code></strong>:<a class="headerlink" href="#6-cargar_tablasmotor-queries-df_structure-logger" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Carga las tablas especificadas en un diccionario de consultas SQL y las almacena en una estructura de datos.</li>
+<li><strong>Argumentos</strong>: Incluye el motor de conexión, las consultas SQL, un diccionario para almacenar los resultados y el logger para registrar el proceso.</li>
+</ul>
+<h3 id="7-storeduplicatednombre_archivo-columnas-dataframe-ruta">7. <strong><code>StoreDuplicated(nombre_archivo, columnas, dataframe, ruta)</code></strong>:<a class="headerlink" href="#7-storeduplicatednombre_archivo-columnas-dataframe-ruta" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Almacena registros duplicados en un archivo para su análisis posterior.</li>
+<li><strong>Argumentos</strong>: Recibe el nombre del archivo, las columnas a comparar, el <code>DataFrame</code> y la ruta donde guardar los registros duplicados.</li>
+</ul>
+<h3 id="8-testfunciones">8. <strong><code>testfunciones()</code></strong>:<a class="headerlink" href="#8-testfunciones" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Verifica que todas las funciones importadas desde <code>Funciones.py</code> están operativas.</li>
+<li><strong>Uso</strong>: Se ejecuta al inicio del script para garantizar la correcta importación de las funciones.</li>
+</ul>
+<h3 id="9-estandarizar_direcciondireccion">9. <strong><code>estandarizar_direccion(direccion)</code></strong>:<a class="headerlink" href="#9-estandarizar_direcciondireccion" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Propósito</strong>: Estandariza el formato de una dirección para asegurar la uniformidad de los datos.</li>
+<li><strong>Argumentos</strong>: Recibe la dirección a estandarizar.</li>
+</ul>
+<h3 id="10-marcar_direcciones_estandarizadasdf-columna">10. <strong><code>marcar_direcciones_estandarizadas(df, columna)</code></strong>:<a class="headerlink" href="#10-marcar_direcciones_estandarizadasdf-columna" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>- **Propósito**: Marca las direcciones estandarizadas dentro de un DataFrame.
+- **Argumentos**: Recibe el `DataFrame` y la columna de direcciones a analizar.
+</code></pre></div>
+
+<p>Estas funciones permiten simplificar y automatizar las tareas comunes de un proceso ETL, garantizando un flujo de trabajo eficiente y bien documentado.</p>
+<h2 id="configuracion-del-entorno-de-trabajo">Configuración del Entorno de Trabajo<a class="headerlink" href="#configuracion-del-entorno-de-trabajo" title="Permanent link">&para;</a></h2>
+<h3 id="configuracion-inicial-del-logger">Configuración Inicial del Logger<a class="headerlink" href="#configuracion-inicial-del-logger" title="Permanent link">&para;</a></h3>
+<p>La configuración del logger es fundamental para garantizar el seguimiento de las operaciones que se realizan en el proceso ETL. Utilice la función <code>setup_logger</code> para registrar los eventos.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">Funciones</span> <span class="kn">import</span> <span class="n">setup_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">setup_logger</span><span class="p">(</span><span class="n">log_filename</span><span class="o">=</span><span class="s1">&#39;etl_proceso.log&#39;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Inicio del proceso ETL&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="ejecucion-de-funciones-de-conexion-y-procesamiento">Ejecución de Funciones de Conexión y Procesamiento<a class="headerlink" href="#ejecucion-de-funciones-de-conexion-y-procesamiento" title="Permanent link">&para;</a></h3>
+<p>A continuación, se muestra un ejemplo de cómo utilizar las funciones para establecer una conexión con el DWH y procesar los datos:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">Funciones</span> <span class="kn">import</span> <span class="n">obtener_conexion</span><span class="p">,</span> <span class="n">guardar_en_dwh</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+
+<span class="c1"># Establecer conexión al DWH</span>
+<span class="n">cadena_conexion</span> <span class="o">=</span> <span class="n">obtener_conexion</span><span class="p">(</span><span class="s1">&#39;dwh&#39;</span><span class="p">)</span>
+<span class="n">motor</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">cadena_conexion</span><span class="p">)</span>
+
+<span class="c1"># Procesar y guardar los datos</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM fuente_datos&quot;</span><span class="p">,</span> <span class="n">motor</span><span class="p">)</span>
+
+<span class="c1"># Guardar en DWH</span>
+<span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;tabla_destino&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="conclusion">Conclusión<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>La correcta configuración del entorno y la instalación de dependencias son fundamentales para asegurar que los procesos de carga y transformación de datos se realicen de manera eficiente y sin contratiempos. Al tener un entorno adecuadamente configurado, se minimizan los errores y se facilita la depuración y mantenimiento del código. Además, el uso de funciones centralizadas en <code>Funciones.py</code> permite simplificar la lógica de conexión, limpieza y carga de datos, asegurando la reproducibilidad de los procesos y manteniendo un código más ordenado, estructurado y fácil de entender. Esto se traduce en una mayor eficiencia, un menor costo de mantenimiento y una mejor calidad general de los datos procesados, facilitando así la toma de decisiones basada en datos confiables y bien organizados.</p>
 
 
 
