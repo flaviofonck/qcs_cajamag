@@ -470,21 +470,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Intoducción">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#diagrama-de-secuencia-del-proceso-etl" class="md-nav__link">
-    <span class="md-ellipsis">
-      Diagrama de Secuencia del Proceso ETL
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -496,6 +481,15 @@
   
     <nav class="md-nav" aria-label="ETL">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagrama-de-secuencia-del-proceso-etl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diagrama de Secuencia del Proceso ETL
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#importacion-de-librerias-y-funciones" class="md-nav__link">
@@ -1515,21 +1509,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Intoducción">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#diagrama-de-secuencia-del-proceso-etl" class="md-nav__link">
-    <span class="md-ellipsis">
-      Diagrama de Secuencia del Proceso ETL
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1541,6 +1520,15 @@
   
     <nav class="md-nav" aria-label="ETL">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagrama-de-secuencia-del-proceso-etl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diagrama de Secuencia del Proceso ETL
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#importacion-de-librerias-y-funciones" class="md-nav__link">
@@ -1657,6 +1645,7 @@
 <p>Este proceso ETL (Extract, Transform, Load) tiene como objetivo consolidar y estructurar datos de diversas fuentes en tablas dimensionales para su almacenamiento en un Data Warehouse (DWH), facilitando el análisis y reporte posterior. Utilizando Python y SQL, el flujo ETL extrae datos de múltiples tablas de entrada provenientes de bases de datos como <code>subsidio</code>, <code>schoolkits</code>, <code>empresa</code>, y <code>xml4</code>, realizando transformaciones para estandarizar y mejorar la calidad de los datos. Cada tabla de entrada aporta información clave sobre personas, actividades económicas, zonas, sucursales y otros atributos necesarios para el análisis.</p>
 <p>Las tablas de entrada incluyen <code>sat25</code>, que define el tipo de persona; <code>subsi04</code>, que contiene información de actividades económicas; y <code>subsi36</code>, que proporciona estados de inactivación y códigos de afiliación. También se usan <code>SK13</code> para zonas geográficas, <code>gener18</code> para códigos de documentos, <code>xml4c085</code> con información de sucursales de empresas, y <code>gener08</code> que ofrece datos de ciudades. Además, se utilizan tablas en el DWH, como <code>DimAuxEstadoAfiliacion</code> y <code>DimTipoVinculacion</code>, que proveen datos sobre estados de afiliación y tipos de calidad del aportante.</p>
 <p>Las tablas resultantes se almacenan en el DWH bajo nombres descriptivos, tales como <code>BD_Dim_Tipo_Persona</code> para la estructura de tipos de personas, <code>BD_Dim_Actividad</code> para actividades económicas, <code>BD_Dim_Zona</code> para zonas geográficas, <code>BD_Dim_Empresas_Sucursales</code> para detalles de sucursales, y <code>BD_Dim_Ciudades</code> para la estandarización de datos de ciudades. Estas dimensiones permiten un análisis organizado de datos estructurados y categorizados para facilitar los reportes y métricas clave.</p>
+<h2 id="etl">ETL<a class="headerlink" href="#etl" title="Permanent link">&para;</a></h2>
 <h3 id="diagrama-de-secuencia-del-proceso-etl">Diagrama de Secuencia del Proceso ETL<a class="headerlink" href="#diagrama-de-secuencia-del-proceso-etl" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>sequenceDiagram
   title Diagrama de Secuencia del Proceso ETL de Dimensiones
@@ -1673,7 +1662,6 @@
   Script-&gt;&gt;DWH: Cargar tablas de salida en DWH &lt;br&gt; (e.g., BD_Dim_Tipo_Persona, BD_Dim_Actividad, BD_Dim_Ciudades)
   DWH--&gt;&gt;Script: Confirmación de carga exitosa
   Script--&gt;&gt;👤 Usuario: Proceso ETL completado con éxito</code></pre>
-<h2 id="etl">ETL<a class="headerlink" href="#etl" title="Permanent link">&para;</a></h2>
 <h3 id="importacion-de-librerias-y-funciones">Importación de librerías y funciones<a class="headerlink" href="#importacion-de-librerias-y-funciones" title="Permanent link">&para;</a></h3>
 <p>Este bloque de código inicializa el entorno para la conexión y manipulación de datos con SQLAlchemy y Pandas, junto con <code>numpy</code> para el manejo de datos numéricos y <code>logging</code> para la generación de registros. Se configura el <code>sys.path</code> para importar funciones personalizadas desde un archivo externo (<code>Funciones.py</code>). Entre las funciones importadas se encuentran herramientas específicas para el flujo de datos como <code>log_tiempo</code>, <code>guardar_en_dwh</code>, <code>cargar_tablas</code>, y <code>StoreDuplicated</code>, así como utilidades para el procesamiento y estandarización de direcciones (<code>estandarizar_direccion</code>, <code>marcar_direcciones_estandarizadas</code>). El script ejecuta <code>testfunciones()</code> para verificar que las funciones importadas están listas para su uso, asegurando un flujo controlado y adecuado para el procesamiento y almacenamiento de datos.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>

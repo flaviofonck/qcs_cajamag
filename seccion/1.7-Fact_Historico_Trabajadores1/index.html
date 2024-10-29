@@ -1635,28 +1635,28 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">testfunciones</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;COMIENZO ETL&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:29:47,542 - INFO - Importacion de funciones correcta, 26-10-2024 16:29
-2024-10-26 16:29:47,546 - INFO - COMIENZO ETL
+<div class="codehilite"><pre><span></span><code>2024-10-28 19:02:25,499 - INFO - Importacion de funciones correcta, 28-10-2024 19:02
+2024-10-28 19:02:25,501 - INFO - COMIENZO ETL
 </code></pre></div>
 
 <h3 id="definicion-y-ejecucion-de-consultas-sql-para-el-analisis-de-trabajadores">Definición y Ejecución de Consultas SQL para el Análisis de Trabajadores<a class="headerlink" href="#definicion-y-ejecucion-de-consultas-sql-para-el-analisis-de-trabajadores" title="Permanent link">&para;</a></h3>
 <p>Este bloque de código define y estructura un conjunto de consultas SQL en el diccionario <code>qr_structure</code>, permitiendo la extracción de datos de diversas fuentes para un análisis detallado de trabajadores. La consulta <code>op_Trabajadores_p1</code> obtiene información detallada sobre los trabajadores, incluyendo su tipo de documento (<code>tipide</code>), identificación (<code>id</code>), periodo de afiliación y retiro (<code>perafi</code>, <code>perret</code>), estado civil (<code>estciv</code>), y otros detalles de afiliación y categorización (<code>codcat</code>, <code>divpol</code>, <code>nivedu</code>, entre otros). Los datos se filtran por un rango de fechas específico y se agrupan mediante <code>cod</code>, lo que asegura que cada trabajador tenga una entrada única por período.</p>
 <p>La consulta <code>op_Trabajadores_p2</code> transforma y concatena los tipos de documento (<code>coddoc</code>) y las cédulas (<code>cedtra</code>) para estandarizar el código de trabajador (<code>cod</code>). La estructura <code>dim_names</code> asigna nombres descriptivos a cada consulta, facilitando su posterior almacenamiento en un Data Warehouse bajo identificadores significativos (<code>BD_Fact_op_Trabajadores_p1</code> y <code>BD_Fact_op_Trabajadores_p2</code>). Finalmente, el diccionario <code>df_structure</code> prepara los DataFrames de salida y un registro en el logger indica la lectura de las consultas, permitiendo monitorear la ejecución y garantizar la trazabilidad de las operaciones.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#Lista de querys</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Lista de consultas actualizada con rango de 18 periodos desde la fecha actual</span>
 <span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;op_Trabajadores_p1&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        SELECT * FROM</span>
 <span class="s2">        (select p1.*, p2.perret, p3.perafi,</span>
 <span class="s2">        p4.nombre as calsuc from</span>
-<span class="s2">        (Select coddoc as tipide, cedtra as id, CONCAT( coddoc , cedtra ) as cod,  periodo, &#39;A&#39; as estado, </span>
-<span class="s2">                            codcat, divpol as codzon, </span>
-<span class="s2">                            tipafi, tipgen as sexo, estciv, graesc as nivedu, fecnac,  codare as rural  from xml4.xml4c086</span>
-<span class="s2">                            #where cedtra=&#39;1000005988&#39;</span>
-
-<span class="s2">                        GROUP BY CONCAT( coddoc , cedtra ), periodo) as p1</span>
+<span class="s2">        (Select coddoc as tipide, cedtra as id, CONCAT( coddoc , cedtra ) as cod, periodo, &#39;A&#39; as estado, </span>
+<span class="s2">                codcat, divpol as codzon, tipafi, tipgen as sexo, estciv, graesc as nivedu, </span>
+<span class="s2">                fecnac, codare as rural  </span>
+<span class="s2">            from xml4.xml4c086</span>
+<span class="s2">            GROUP BY CONCAT( coddoc , cedtra ), periodo) as p1</span>
 
 <span class="s2">        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,</span>
-<span class="s2">        IF(MAX(periodo)&lt;(SELECT MAX(periodo) from xml4.xml4c086), MAX(periodo), NULL) as perret from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p2</span>
+<span class="s2">        IF(MAX(periodo)&lt;(SELECT MAX(periodo) from xml4.xml4c086), MAX(periodo), NULL) as perret </span>
+<span class="s2">        from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p2</span>
 <span class="s2">        ON p1.cod = p2.cod </span>
 
 <span class="s2">        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,</span>
@@ -1666,14 +1666,15 @@
 <span class="s2">        LEFT JOIN xml4.xml4b006 as p4</span>
 <span class="s2">        ON p1.tipafi = p4.tipafi</span>
 
-<span class="s2">        WHERE  (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
-<span class="s2">        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;)</span>
+<span class="s2">        WHERE (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
+<span class="s2">        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;))</span>
 <span class="s2">        OR </span>
-<span class="s2">        (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
+<span class="s2">        (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
 <span class="s2">        AND perret IS NULL)) as m</span>
-<span class="s2">        WHERE CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
-<span class="s2">                AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;;</span>
+<span class="s2">        WHERE CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
+<span class="s2">            AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;);</span>
 <span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span>
+
     <span class="s2">&quot;op_Trabajadores_p2&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        SELECT CONCAT(</span>
 <span class="s1">            CAST(</span>
@@ -1689,22 +1690,27 @@
 <span class="s1">                END AS CHAR</span>
 <span class="s1">            ),</span>
 <span class="s1">            cedtra</span>
-<span class="s1">        ) AS cod   , codciu, codest, fecsis, CONCAT( SUBSTRING(fecsis,1,4) , SUBSTRING(fecsis,6,2) ) as persis from subsidio.subsi15 group by cod</span>
+<span class="s1">        ) AS cod, codciu, codest, fecsis, CONCAT(SUBSTRING(fecsis, 1, 4), SUBSTRING(fecsis, 6, 2)) as persis </span>
+<span class="s1">        from subsidio.subsi15 </span>
+<span class="s1">        WHERE DATE_FORMAT(CURDATE(), &#39;%Y%m&#39;) &gt;= DATE_FORMAT(fecsis, &#39;%Y%m&#39;) </span>
+<span class="s1">            AND DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y%m&#39;) &lt;= DATE_FORMAT(fecsis, &#39;%Y%m&#39;)</span>
+<span class="s1">        group by cod</span>
 <span class="s1">    &#39;&#39;&#39;</span>
-    <span class="p">}</span>
+<span class="p">}</span>
 
 <span class="n">dim_names</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;op_Trabajadores_p1&quot;</span><span class="p">:</span> <span class="s2">&quot;BD_Fact_op_Trabajadores_p1&quot;</span><span class="p">,</span>
     <span class="s2">&quot;op_Trabajadores_p2&quot;</span><span class="p">:</span> <span class="s2">&quot;BD_Fact_op_Trabajadores_p2&quot;</span>
-    <span class="p">}</span>
+<span class="p">}</span>
+
 <span class="n">df_structure</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">qr_structure</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:29:47,559 - INFO - LECTURA DE QUERYS
+<div class="codehilite"><pre><span></span><code>2024-10-28 19:02:25,517 - INFO - LECTURA DE QUERYS
 
 
-{&#39;op_Trabajadores_p1&#39;: &quot;\n        SELECT * FROM\n        (select p1.*, p2.perret, p3.perafi,\n        p4.nombre as calsuc from\n        (Select coddoc as tipide, cedtra as id, CONCAT( coddoc , cedtra ) as cod,  periodo, &#39;A&#39; as estado, \n                            codcat, divpol as codzon, \n                            tipafi, tipgen as sexo, estciv, graesc as nivedu, fecnac,  codare as rural  from xml4.xml4c086\n                            #where cedtra=&#39;1000005988&#39;\n                            \n                        GROUP BY CONCAT( coddoc , cedtra ), periodo) as p1\n\n        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,\n        IF(MAX(periodo)&lt;(SELECT MAX(periodo) from xml4.xml4c086), MAX(periodo), NULL) as perret from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p2\n        ON p1.cod = p2.cod \n\n        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,\n        MIN(periodo) as perafi from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p3\n        ON p1.cod = p3.cod\n\n        LEFT JOIN xml4.xml4b006 as p4\n        ON p1.tipafi = p4.tipafi\n\n        WHERE  (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;\n        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;)\n        OR \n        (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;\n        AND perret IS NULL)) as m\n        WHERE CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;\n                AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;;\n    &quot;, &#39;op_Trabajadores_p2&#39;: &quot;\n        SELECT CONCAT(\n            CAST(\n                CASE \n                    WHEN coddoc = &#39;CC&#39; THEN 1 \n                    WHEN coddoc = &#39;CD&#39; THEN 8\n                    WHEN coddoc = &#39;CE&#39; THEN 4 \n                    WHEN coddoc = &#39;PE&#39; THEN 9            \n                    WHEN coddoc = &#39;PA&#39; THEN 6 \n                    WHEN coddoc = &#39;PT&#39; THEN 15 \n                    WHEN coddoc = &#39;TI&#39; THEN 2\n                    ELSE coddoc \n                END AS CHAR\n            ),\n            cedtra\n        ) AS cod   , codciu, codest, fecsis, CONCAT( SUBSTRING(fecsis,1,4) , SUBSTRING(fecsis,6,2) ) as persis from subsidio.subsi15 group by cod\n    &quot;}
+{&#39;op_Trabajadores_p1&#39;: &quot;\n        SELECT * FROM\n        (select p1.*, p2.perret, p3.perafi,\n        p4.nombre as calsuc from\n        (Select coddoc as tipide, cedtra as id, CONCAT( coddoc , cedtra ) as cod, periodo, &#39;A&#39; as estado, \n                codcat, divpol as codzon, tipafi, tipgen as sexo, estciv, graesc as nivedu, \n                fecnac, codare as rural  \n            from xml4.xml4c086\n            GROUP BY CONCAT( coddoc , cedtra ), periodo) as p1\n\n        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,\n        IF(MAX(periodo)&lt;(SELECT MAX(periodo) from xml4.xml4c086), MAX(periodo), NULL) as perret \n        from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p2\n        ON p1.cod = p2.cod \n\n        LEFT JOIN (select CONCAT( coddoc , cedtra ) as cod,\n        MIN(periodo) as perafi from xml4.xml4c086 GROUP BY CONCAT( coddoc , cedtra )) as p3\n        ON p1.cod = p3.cod\n\n        LEFT JOIN xml4.xml4b006 as p4\n        ON p1.tipafi = p4.tipafi\n\n        WHERE (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)\n        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;))\n        OR \n        (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)\n        AND perret IS NULL)) as m\n        WHERE CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)\n            AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;);\n    &quot;, &#39;op_Trabajadores_p2&#39;: &quot;\n        SELECT CONCAT(\n            CAST(\n                CASE \n                    WHEN coddoc = &#39;CC&#39; THEN 1 \n                    WHEN coddoc = &#39;CD&#39; THEN 8\n                    WHEN coddoc = &#39;CE&#39; THEN 4 \n                    WHEN coddoc = &#39;PE&#39; THEN 9            \n                    WHEN coddoc = &#39;PA&#39; THEN 6 \n                    WHEN coddoc = &#39;PT&#39; THEN 15 \n                    WHEN coddoc = &#39;TI&#39; THEN 2\n                    ELSE coddoc \n                END AS CHAR\n            ),\n            cedtra\n        ) AS cod, codciu, codest, fecsis, CONCAT(SUBSTRING(fecsis, 1, 4), SUBSTRING(fecsis, 6, 2)) as persis \n        from subsidio.subsi15 \n        WHERE DATE_FORMAT(CURDATE(), &#39;%Y%m&#39;) &gt;= DATE_FORMAT(fecsis, &#39;%Y%m&#39;) \n            AND DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y%m&#39;) &lt;= DATE_FORMAT(fecsis, &#39;%Y%m&#39;)\n        group by cod\n    &quot;}
 </code></pre></div>
 
 <h3 id="conexion-a-base-de-datos-y-carga-de-tablas-en-dataframes">Conexión a Base de Datos y Carga de Tablas en DataFrames<a class="headerlink" href="#conexion-a-base-de-datos-y-carga-de-tablas-en-dataframes" title="Permanent link">&para;</a></h3>
@@ -1716,12 +1722,12 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor</span><span class="p">,</span> <span class="n">qr_structure</span><span class="p">,</span> <span class="n">df_structure</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:29:47,728 - INFO - CONEXION A BASE MINERVA
-2024-10-26 16:29:48,289 - INFO - Cargando op_Trabajadores_p1 
-2024-10-26 16:33:37,853 - INFO - Cargada op_Trabajadores_p1 --- 3.83 minutes ---
-2024-10-26 16:33:37,855 - INFO - Cargando op_Trabajadores_p2 
-2024-10-26 16:33:44,648 - INFO - Cargada op_Trabajadores_p2 --- 6.79 seconds ---
-2024-10-26 16:33:44,754 - INFO - CARGUE TABLAS DESDE MYSQL --- op_Trabajadores_p2 --- 3.95 minutes ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 19:02:25,531 - INFO - CONEXION A BASE MINERVA
+2024-10-28 19:02:26,062 - INFO - Cargando op_Trabajadores_p1 
+2024-10-28 19:04:32,936 - INFO - Cargada op_Trabajadores_p1, 2,456,632 registros finales obtenidos. --- 2.11 minutes ---
+2024-10-28 19:04:32,937 - INFO - Cargando op_Trabajadores_p2 
+2024-10-28 19:04:35,439 - INFO - Cargada op_Trabajadores_p2, 36,359 registros finales obtenidos. --- 2.50 seconds ---
+2024-10-28 19:04:35,528 - INFO - CARGUE TABLAS DESDE MYSQL --- op_Trabajadores_p2 --- 2.17 minutes ---
 </code></pre></div>
 
 <h3 id="estandarizacion-y-generacion-de-identificadores-en-dataframes-de-trabajadores">Estandarización y Generación de Identificadores en DataFrames de Trabajadores<a class="headerlink" href="#estandarizacion-y-generacion-de-identificadores-en-dataframes-de-trabajadores" title="Permanent link">&para;</a></h3>
@@ -1822,23 +1828,33 @@
 
 <span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">df_BD_Fact_op_Trabajadores_p2</span><span class="p">,</span> <span class="s1">&#39;BD_Fact_op_Trabajadores_p2&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 17:15:12,752 - INFO - Intentando conexión a la base DWH...
-2024-10-26 17:15:12,754 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 17:15:13,301 - INFO - Almacenando tabla única en DWH como BD_Fact_op_Trabajadores_p1
-2024-10-26 17:23:50,221 - INFO - Tabla almacenada correctamente.
-2024-10-26 17:23:52,500 - INFO - ALMACENAMIENTO ---  --- 8.66 minutes ---
-2024-10-26 17:23:52,501 - INFO - Finalizando proceso de almacenamiento en DWH.
-2024-10-26 17:23:52,502 - INFO - Intentando conexión a la base DWH...
-2024-10-26 17:23:52,504 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 17:23:53,067 - INFO - Almacenando tabla única en DWH como BD_Fact_op_Trabajadores_p2
-2024-10-26 17:24:39,939 - INFO - Tabla almacenada correctamente.
-2024-10-26 17:24:40,114 - INFO - ALMACENAMIENTO ---  --- 47.61 seconds ---
-2024-10-26 17:24:40,115 - INFO - Finalizando proceso de almacenamiento en DWH.
+<div class="codehilite"><pre><span></span><code>2024-10-28 19:04:36,999 - INFO - Intentando conexión a la base DWH...
+2024-10-28 19:04:37,001 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 19:04:37,546 - INFO - Almacenando tabla única en DWH como BD_Fact_op_Trabajadores_p1
+2024-10-28 19:12:06,086 - INFO - Tabla almacenada correctamente. 2,456,632 registros finales obtenidos.
+2024-10-28 19:12:08,794 - INFO - ALMACENAMIENTO ---  --- 7.53 minutes ---
+2024-10-28 19:12:08,795 - INFO - Finalizando proceso de almacenamiento en DWH.
+2024-10-28 19:12:08,797 - INFO - Intentando conexión a la base DWH...
+2024-10-28 19:12:08,799 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 19:12:09,357 - INFO - Almacenando tabla única en DWH como BD_Fact_op_Trabajadores_p2
+2024-10-28 19:12:13,624 - INFO - Tabla almacenada correctamente. 36,359 registros finales obtenidos.
+2024-10-28 19:12:13,735 - INFO - ALMACENAMIENTO ---  --- 4.94 seconds ---
+2024-10-28 19:12:13,736 - INFO - Finalizando proceso de almacenamiento en DWH.
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FINAL ETL --- </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds ---&#39;</span><span class="p">)</span>
+<span class="n">df_BD_Fact_op_Trabajadores_p1</span><span class="p">[</span><span class="s1">&#39;PERIODO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 17:46:01,636 - INFO - FINAL ETL --- 4574.19 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 19:13:00,271 - INFO - FINAL ETL --- 634.80 seconds ---
+
+
+
+
+
+array([&#39;202304&#39;, &#39;202305&#39;, &#39;202306&#39;, &#39;202307&#39;, &#39;202308&#39;, &#39;202309&#39;,
+       &#39;202310&#39;, &#39;202311&#39;, &#39;202312&#39;, &#39;202401&#39;, &#39;202402&#39;, &#39;202403&#39;,
+       &#39;202404&#39;, &#39;202405&#39;, &#39;202406&#39;, &#39;202407&#39;, &#39;202408&#39;, &#39;202409&#39;],
+      dtype=object)
 </code></pre></div>
 
 

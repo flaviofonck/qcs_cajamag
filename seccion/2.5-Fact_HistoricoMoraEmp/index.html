@@ -1671,12 +1671,12 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">testfunciones</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;COMIENZO ETL&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:54:57,229 - INFO - Importacion de funciones correcta, 26-10-2024 08:54
-2024-10-26 08:54:57,231 - INFO - COMIENZO ETL
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:16,655 - INFO - Importacion de funciones correcta, 28-10-2024 18:07
+2024-10-28 18:07:16,656 - INFO - COMIENZO ETL
 </code></pre></div>
 
 <h3 id="consulta-sql-para-analisis-de-morosidad-y-notificaciones-de-empresas">Consulta SQL para Análisis de Morosidad y Notificaciones de Empresas<a class="headerlink" href="#consulta-sql-para-analisis-de-morosidad-y-notificaciones-de-empresas" title="Permanent link">&para;</a></h3>
-<p>Este código define una consulta SQL en el diccionario <code>qr_structure</code>, que extrae datos relacionados con la morosidad de empresas desde la tabla <code>xml4.xml4c070</code>. La consulta calcula el valor total en mora (<code>salmor</code>) y el número de periodos en mora (<code>permor</code>) por cada empresa (<code>nit</code>). Además, agrega una columna <code>Notificacion</code> para indicar si la empresa fue notificada, comparando con registros de la tabla <code>subsidio.subsi173</code>. La consulta filtra datos entre los periodos 2021 y 2023, y agrupa los resultados por periodo y empresa. Esto permite evaluar tanto el valor en mora como el estado de notificación de cada empresa en los periodos seleccionados.</p>
+<p>Este código define una consulta SQL en el diccionario <code>qr_structure</code>, que extrae datos relacionados con la morosidad de empresas desde la tabla <code>xml4.xml4c070</code>. La consulta calcula el valor total en mora (<code>salmor</code>) y el número de periodos en mora (<code>permor</code>) por cada empresa (<code>nit</code>). Además, agrega una columna <code>Notificacion</code> para indicar si la empresa fue notificada, comparando con registros de la tabla <code>subsidio.subsi173</code>. La consulta filtra datos entre los últimos 18 periodos, y agrupa los resultados por periodo y empresa. Esto permite evaluar tanto el valor en mora como el estado de notificación de cada empresa en los periodos seleccionados.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">#Lista de querys</span>
 <span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -1706,7 +1706,9 @@
 <span class="s2">            m1.nit = m2.nit </span>
 <span class="s2">            AND m1.periodo = m2.periodo </span>
 <span class="s2">        where </span>
-<span class="s2">            m1.periodo between &#39;202101&#39; and &#39;202312&#39; </span>
+<span class="s2">            STR_TO_DATE(CONCAT(SUBSTRING(m1.periodo, 1, 4), &#39;-&#39;, SUBSTRING(m1.periodo, 5, 2), &#39;-01&#39;), &#39;%Y-%m-</span><span class="si">%d</span><span class="s2">&#39;)</span>
+<span class="s2">            BETWEEN DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;)</span>
+<span class="s2">            AND DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
 <span class="s2">        group by </span>
 <span class="s2">            m1.periodo, m1.nit;    </span>
 <span class="s2">    &quot;&quot;&quot;</span>
@@ -1715,7 +1717,7 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">qr_structure</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:54:57,248 - INFO - LECTURA DE QUERYS
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:16,673 - INFO - LECTURA DE QUERYS
 
 
 
@@ -1745,7 +1747,9 @@
             m1.nit = m2.nit 
             AND m1.periodo = m2.periodo 
         where 
-            m1.periodo between &#39;202101&#39; and &#39;202312&#39; 
+            STR_TO_DATE(CONCAT(SUBSTRING(m1.periodo, 1, 4), &#39;-&#39;, SUBSTRING(m1.periodo, 5, 2), &#39;-01&#39;), &#39;%Y-%m-%d&#39;)
+            BETWEEN DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;)
+            AND DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)
         group by 
             m1.periodo, m1.nit;
 </code></pre></div>
@@ -1758,12 +1762,10 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor</span><span class="p">,</span> <span class="n">qr_structure</span><span class="p">,</span> <span class="n">df_structure</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:54:57,300 - INFO - CONEXION A BASE MINERVA
-
-
-2024-10-26 08:54:57,865 - INFO - Cargando query 
-2024-10-26 08:54:59,390 - INFO - Cargada query --- 1.53 seconds ---
-2024-10-26 08:54:59,478 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 2.16 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:16,686 - INFO - CONEXION A BASE MINERVA
+2024-10-28 18:07:41,682 - INFO - Cargando query 
+2024-10-28 18:07:46,519 - INFO - Cargada query, 14,767 registros finales obtenidos. --- 4.84 seconds ---
+2024-10-28 18:07:46,610 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 29.92 seconds ---
 </code></pre></div>
 
 <h3 id="consulta-y-carga-de-codigo-de-documentos-desde-el-data-warehouse">Consulta y Carga de Código de Documentos desde el Data Warehouse<a class="headerlink" href="#consulta-y-carga-de-codigo-de-documentos-desde-el-data-warehouse" title="Permanent link">&para;</a></h3>
@@ -1785,8 +1787,8 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor2</span><span class="p">,</span> <span class="n">qr_structure2</span><span class="p">,</span> <span class="n">df_codigos</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:54:59,490 - INFO - LECTURA DE QUERYS
-2024-10-26 08:54:59,493 - INFO - CONEXION A BASE DWH
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:46,623 - INFO - LECTURA DE QUERYS
+2024-10-28 18:07:46,625 - INFO - CONEXION A BASE DWH
 
 
 
@@ -1794,9 +1796,9 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 
 
 
-2024-10-26 08:55:00,059 - INFO - Cargando query 
-2024-10-26 08:55:00,116 - INFO - Cargada query --- 0.06 seconds ---
-2024-10-26 08:55:00,202 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 0.71 seconds ---
+2024-10-28 18:07:47,189 - INFO - Cargando query 
+2024-10-28 18:07:47,237 - INFO - Cargada query, 10 registros finales obtenidos. --- 0.05 seconds ---
+2024-10-28 18:07:47,331 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 0.70 seconds ---
 </code></pre></div>
 
 <h3 id="conversion-y-union-de-dataframes-para-documentos-de-morosidad">Conversión y Unión de DataFrames para Documentos de Morosidad<a class="headerlink" href="#conversion-y-union-de-dataframes-para-documentos-de-morosidad" title="Permanent link">&para;</a></h3>
@@ -1848,66 +1850,66 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
   <tbody>
     <tr>
       <th>0</th>
-      <td>202101</td>
-      <td>1004355272</td>
+      <td>202304</td>
+      <td>1004345473</td>
       <td>1</td>
-      <td>439800.0</td>
-      <td>4</td>
+      <td>92800.0</td>
+      <td>2</td>
       <td>Empresa</td>
-      <td>0</td>
-      <td>PINTO ZARABATA JOSE MANUEL</td>
+      <td>1</td>
+      <td>NAVARRETE ARIAS JULIANA GABRIELA</td>
       <td>1</td>
       <td>CC</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>202101</td>
-      <td>1005337407</td>
-      <td>7</td>
-      <td>147600.0</td>
+      <td>202304</td>
+      <td>1004373978</td>
+      <td>1</td>
+      <td>148200.0</td>
       <td>3</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>ORDONEZ RUIZ MARIANITA</td>
-      <td>7</td>
-      <td>NI</td>
+      <td>BARROS MARTINEZ LISBETH KARIME</td>
+      <td>1</td>
+      <td>CC</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>202101</td>
-      <td>1007698517</td>
+      <td>202304</td>
+      <td>10090333</td>
       <td>1</td>
-      <td>304600.0</td>
-      <td>2</td>
+      <td>798000.0</td>
+      <td>3</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>ELIUD MANUEL BERSINGER GARCES</td>
+      <td>PUELLO MONTOYA GUSTAVO ADOLFO</td>
       <td>1</td>
       <td>CC</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>202101</td>
-      <td>10138528</td>
+      <td>202304</td>
+      <td>10136103</td>
       <td>1</td>
-      <td>365700.0</td>
+      <td>162000.0</td>
       <td>3</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>BEDOYA GRISALES JHON JADER</td>
+      <td>ZAPATA RODRIGUEZ JHON JAIBER</td>
       <td>1</td>
       <td>CC</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>202101</td>
-      <td>1016020948</td>
+      <td>202304</td>
+      <td>1022360808</td>
       <td>1</td>
-      <td>176000.0</td>
-      <td>5</td>
+      <td>130200.0</td>
+      <td>2</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>LOPEZ ESLAIT ANDRES GUILLERMO</td>
+      <td>MORALES GARCIA HEIDY XIMENA</td>
       <td>1</td>
       <td>CC</td>
     </tr>
@@ -1993,88 +1995,88 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
   <tbody>
     <tr>
       <th>0</th>
-      <td>CC1004355272</td>
-      <td>202101</td>
-      <td>1004355272</td>
+      <td>CC1004345473</td>
+      <td>202304</td>
+      <td>1004345473</td>
       <td>CC</td>
-      <td>439800.0</td>
-      <td>4</td>
+      <td>92800.0</td>
+      <td>2</td>
       <td>Empresa</td>
-      <td>0</td>
-      <td>PINTO ZARABATA JOSE MANUEL</td>
       <td>1</td>
-      <td>2021011004355272Emp</td>
-      <td>4-10 periodos</td>
-      <td>2021011004355272</td>
-      <td>2021-01-01</td>
+      <td>NAVARRETE ARIAS JULIANA GABRIELA</td>
+      <td>1</td>
+      <td>2023041004345473Emp</td>
+      <td>1-3 periodos</td>
+      <td>2023041004345473</td>
+      <td>2023-04-01</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>NI1005337407</td>
-      <td>202101</td>
-      <td>1005337407</td>
-      <td>NI</td>
-      <td>147600.0</td>
+      <td>CC1004373978</td>
+      <td>202304</td>
+      <td>1004373978</td>
+      <td>CC</td>
+      <td>148200.0</td>
       <td>3</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>ORDONEZ RUIZ MARIANITA</td>
-      <td>7</td>
-      <td>2021011005337407Emp</td>
+      <td>BARROS MARTINEZ LISBETH KARIME</td>
+      <td>1</td>
+      <td>2023041004373978Emp</td>
       <td>1-3 periodos</td>
-      <td>2021011005337407</td>
-      <td>2021-01-01</td>
+      <td>2023041004373978</td>
+      <td>2023-04-01</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>CC1007698517</td>
-      <td>202101</td>
-      <td>1007698517</td>
+      <td>CC10090333</td>
+      <td>202304</td>
+      <td>10090333</td>
       <td>CC</td>
-      <td>304600.0</td>
-      <td>2</td>
-      <td>Empresa</td>
-      <td>0</td>
-      <td>ELIUD MANUEL BERSINGER GARCES</td>
-      <td>1</td>
-      <td>2021011007698517Emp</td>
-      <td>1-3 periodos</td>
-      <td>2021011007698517</td>
-      <td>2021-01-01</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>CC10138528</td>
-      <td>202101</td>
-      <td>10138528</td>
-      <td>CC</td>
-      <td>365700.0</td>
+      <td>798000.0</td>
       <td>3</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>BEDOYA GRISALES JHON JADER</td>
+      <td>PUELLO MONTOYA GUSTAVO ADOLFO</td>
       <td>1</td>
-      <td>20210110138528Emp</td>
+      <td>20230410090333Emp</td>
       <td>1-3 periodos</td>
-      <td>20210110138528</td>
-      <td>2021-01-01</td>
+      <td>20230410090333</td>
+      <td>2023-04-01</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>CC10136103</td>
+      <td>202304</td>
+      <td>10136103</td>
+      <td>CC</td>
+      <td>162000.0</td>
+      <td>3</td>
+      <td>Empresa</td>
+      <td>0</td>
+      <td>ZAPATA RODRIGUEZ JHON JAIBER</td>
+      <td>1</td>
+      <td>20230410136103Emp</td>
+      <td>1-3 periodos</td>
+      <td>20230410136103</td>
+      <td>2023-04-01</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>CC1016020948</td>
-      <td>202101</td>
-      <td>1016020948</td>
+      <td>CC1022360808</td>
+      <td>202304</td>
+      <td>1022360808</td>
       <td>CC</td>
-      <td>176000.0</td>
-      <td>5</td>
+      <td>130200.0</td>
+      <td>2</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>LOPEZ ESLAIT ANDRES GUILLERMO</td>
+      <td>MORALES GARCIA HEIDY XIMENA</td>
       <td>1</td>
-      <td>2021011016020948Emp</td>
-      <td>4-10 periodos</td>
-      <td>2021011016020948</td>
-      <td>2021-01-01</td>
+      <td>2023041022360808Emp</td>
+      <td>1-3 periodos</td>
+      <td>2023041022360808</td>
+      <td>2023-04-01</td>
     </tr>
     <tr>
       <th>...</th>
@@ -2094,93 +2096,93 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>...</td>
     </tr>
     <tr>
-      <th>27523</th>
-      <td>CC9141357</td>
-      <td>202312</td>
-      <td>9141357</td>
-      <td>CC</td>
-      <td>92800.0</td>
-      <td>2</td>
-      <td>Empresa</td>
-      <td>0</td>
-      <td>HERNANDEZ LASTRE HUGO RAMON</td>
-      <td>1</td>
-      <td>2023129141357Emp</td>
-      <td>1-3 periodos</td>
-      <td>2023129141357</td>
-      <td>2023-12-01</td>
-    </tr>
-    <tr>
-      <th>27524</th>
-      <td>CC91448766</td>
-      <td>202312</td>
-      <td>91448766</td>
-      <td>CC</td>
-      <td>16000.0</td>
-      <td>5</td>
-      <td>Empresa</td>
-      <td>0</td>
-      <td>ANGARITA MOSCOTE JHON JAIRO</td>
-      <td>1</td>
-      <td>20231291448766Emp</td>
-      <td>4-10 periodos</td>
-      <td>20231291448766</td>
-      <td>2023-12-01</td>
-    </tr>
-    <tr>
-      <th>27525</th>
-      <td>CC91510784</td>
-      <td>202312</td>
-      <td>91510784</td>
-      <td>CC</td>
-      <td>232000.0</td>
-      <td>5</td>
-      <td>Empresa</td>
-      <td>0</td>
-      <td>GARNICA DE LA ESPRIELLA JAIME LUIS</td>
-      <td>1</td>
-      <td>20231291510784Emp</td>
-      <td>4-10 periodos</td>
-      <td>20231291510784</td>
-      <td>2023-12-01</td>
-    </tr>
-    <tr>
-      <th>27526</th>
-      <td>CC94503271</td>
-      <td>202312</td>
-      <td>94503271</td>
-      <td>CC</td>
-      <td>139200.0</td>
-      <td>3</td>
-      <td>Empresa</td>
-      <td>1</td>
-      <td>LOZANO PUCHE FELIPE CARLOS</td>
-      <td>1</td>
-      <td>20231294503271Emp</td>
-      <td>1-3 periodos</td>
-      <td>20231294503271</td>
-      <td>2023-12-01</td>
-    </tr>
-    <tr>
-      <th>27527</th>
-      <td>CC9876345</td>
-      <td>202312</td>
-      <td>9876345</td>
-      <td>CC</td>
-      <td>185600.0</td>
+      <th>14762</th>
+      <td>NI901826054</td>
+      <td>202409</td>
+      <td>901826054</td>
+      <td>NI</td>
+      <td>208000.0</td>
       <td>4</td>
       <td>Empresa</td>
       <td>0</td>
-      <td>DE ARCO PERTUZ YONY ALFONSO</td>
-      <td>1</td>
-      <td>2023129876345Emp</td>
+      <td>APOYO EMPRESARIAL DEL CARIBE S A S</td>
+      <td>7</td>
+      <td>202409901826054Emp</td>
       <td>4-10 periodos</td>
-      <td>2023129876345</td>
-      <td>2023-12-01</td>
+      <td>202409901826054</td>
+      <td>2024-09-01</td>
+    </tr>
+    <tr>
+      <th>14763</th>
+      <td>NI901828239</td>
+      <td>202409</td>
+      <td>901828239</td>
+      <td>NI</td>
+      <td>36000.0</td>
+      <td>2</td>
+      <td>Empresa</td>
+      <td>0</td>
+      <td>CONSTRUCCIONES DEL CARIBE OITE SAS</td>
+      <td>7</td>
+      <td>202409901828239Emp</td>
+      <td>1-3 periodos</td>
+      <td>202409901828239</td>
+      <td>2024-09-01</td>
+    </tr>
+    <tr>
+      <th>14764</th>
+      <td>NI901828497</td>
+      <td>202409</td>
+      <td>901828497</td>
+      <td>NI</td>
+      <td>264600.0</td>
+      <td>2</td>
+      <td>Empresa</td>
+      <td>0</td>
+      <td>INDUSTRIAS &amp; FIBRA DEL MAGDALENA SAS</td>
+      <td>7</td>
+      <td>202409901828497Emp</td>
+      <td>1-3 periodos</td>
+      <td>202409901828497</td>
+      <td>2024-09-01</td>
+    </tr>
+    <tr>
+      <th>14765</th>
+      <td>NI901837744</td>
+      <td>202409</td>
+      <td>901837744</td>
+      <td>NI</td>
+      <td>156000.0</td>
+      <td>3</td>
+      <td>Empresa</td>
+      <td>0</td>
+      <td>EMPLOYER TALENT S A S</td>
+      <td>7</td>
+      <td>202409901837744Emp</td>
+      <td>1-3 periodos</td>
+      <td>202409901837744</td>
+      <td>2024-09-01</td>
+    </tr>
+    <tr>
+      <th>14766</th>
+      <td>NI901846652</td>
+      <td>202409</td>
+      <td>901846652</td>
+      <td>NI</td>
+      <td>1460000.0</td>
+      <td>2</td>
+      <td>Empresa</td>
+      <td>0</td>
+      <td>CONSORCIO INTER APURE</td>
+      <td>7</td>
+      <td>202409901846652Emp</td>
+      <td>1-3 periodos</td>
+      <td>202409901846652</td>
+      <td>2024-09-01</td>
     </tr>
   </tbody>
 </table>
-<p>27528 rows × 14 columns</p>
+<p>14767 rows × 14 columns</p>
 </div>
 
 <hr />
@@ -2196,14 +2198,14 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 <span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">_df</span><span class="p">,</span> <span class="s1">&#39;BD_Fact_HistoricoMoraEmp&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 <span class="n">_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:55:00,433 - INFO - Intentando conexión a la base DWH...
-2024-10-26 08:55:00,435 - INFO - Conexión a la base DWH establecida con éxito.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:47,517 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:07:47,519 - INFO - Conexión a la base DWH establecida con éxito.
 
 
-2024-10-26 08:55:01,037 - INFO - Almacenando tabla única en DWH como BD_Fact_HistoricoMoraEmp
-2024-10-26 08:55:08,111 - INFO - Tabla almacenada correctamente.
-2024-10-26 08:55:08,527 - INFO - ALMACENAMIENTO ---  --- 8.09 seconds ---
-2024-10-26 08:55:08,529 - INFO - Finalizando proceso de almacenamiento en DWH.
+2024-10-28 18:07:48,074 - INFO - Almacenando tabla única en DWH como BD_Fact_HistoricoMoraEmp
+2024-10-28 18:08:02,979 - INFO - Tabla almacenada correctamente. 14,767 registros finales obtenidos.
+2024-10-28 18:08:04,924 - INFO - ALMACENAMIENTO ---  --- 17.41 seconds ---
+2024-10-28 18:08:04,926 - INFO - Finalizando proceso de almacenamiento en DWH.
 
 
 
@@ -2225,9 +2227,17 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
  &#39;PER_ACT_FECHA&#39;]
 </code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">_df</span><span class="p">[</span><span class="s1">&#39;PERIODO_ACTUALIZACION&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</code></pre></div>
+<div class="codehilite"><pre><span></span><code>array([&#39;202304&#39;, &#39;202305&#39;, &#39;202306&#39;, &#39;202307&#39;, &#39;202308&#39;, &#39;202309&#39;,
+       &#39;202310&#39;, &#39;202311&#39;, &#39;202312&#39;, &#39;202401&#39;, &#39;202402&#39;, &#39;202403&#39;,
+       &#39;202404&#39;, &#39;202405&#39;, &#39;202406&#39;, &#39;202407&#39;, &#39;202408&#39;, &#39;202409&#39;],
+      dtype=object)
+</code></pre></div>
+
 <div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FINAL ETL --- </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds ---&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 08:55:08,554 - INFO - FINAL ETL --- 11.37 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:08:05,026 - INFO - FINAL ETL --- 48.40 seconds ---
 </code></pre></div>
 
 

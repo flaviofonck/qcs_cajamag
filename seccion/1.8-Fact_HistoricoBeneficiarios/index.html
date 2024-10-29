@@ -1709,13 +1709,13 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">testfunciones</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;COMIENZO ETL&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:07:20,687 - INFO - Importacion de funciones correcta, 26-10-2024 13:07
-2024-10-26 13:07:20,688 - INFO - COMIENZO ETL
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:16:55,248 - INFO - Importacion de funciones correcta, 28-10-2024 18:16
+2024-10-28 18:16:55,251 - INFO - COMIENZO ETL
 </code></pre></div>
 
 <h3 id="definicion-de-consultas-para-procesamiento-de-beneficiarios">Definición de Consultas para Procesamiento de Beneficiarios<a class="headerlink" href="#definicion-de-consultas-para-procesamiento-de-beneficiarios" title="Permanent link">&para;</a></h3>
 <p>Este código define dos consultas SQL en un diccionario de estructuras (<code>qr_structure</code> y <code>qr_structure2</code>) que realizan operaciones avanzadas de unión, filtrado y agregación de datos sobre tablas de beneficiarios en un Data Warehouse.</p>
-<p>La primera consulta (<code>qr_structure</code>) extrae registros detallados de beneficiarios con datos de afiliación y retiro en un período reciente. Utiliza múltiples <code>JOIN</code> y subconsultas en varias tablas de una base de datos de subsidios para crear campos calculados como <code>docben</code> y <code>persis</code>, y filtra registros basados en períodos activos de los últimos dos años o retiros nulos.</p>
+<p>La primera consulta (<code>qr_structure</code>) extrae registros detallados de beneficiarios con datos de afiliación y retiro en un período reciente. Utiliza múltiples <code>JOIN</code> y subconsultas en varias tablas de una base de datos de subsidios para crear campos calculados como <code>docben</code> y <code>persis</code>, y filtra registros basados en períodos activos de los últimos 18 periodos o retiros nulos.</p>
 <p>La segunda consulta (<code>qr_structure2</code>) agrega datos en función de campos específicos, como <code>PERIODO</code>, <code>ID_AFILIADO</code>, y <code>CODIGO_DOCUMENTO</code>, agrupando información de documentos y afiliaciones por beneficiario. También define indicadores (<code>SE_RETIRO</code>, <code>SE_AFILIO</code>, <code>NUEVO</code>) que marcan el estado de afiliación o retiro y si un registro es reciente, permitiendo un análisis consolidado y específico de los beneficiarios activos en la base de datos.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">#Lista de querys</span>
 <span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span>
@@ -1757,17 +1757,17 @@
 <span class="s2">    AND p2.coddoc = p3.coddoc</span>
 
 <span class="s2">    WHERE  (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= CURRENT_DATE()</span>
-<span class="s2">        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= cast(DATE_SUB(CURRENT_DATE(), INTERVAL 2 YEAR) as CHAR))</span>
+<span class="s2">        AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= cast(DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH) as CHAR))</span>
 <span class="s2">        OR (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= CURRENT_DATE()</span>
 <span class="s2">        AND perret IS NULL)) as m</span>
 <span class="s2"> WHERE CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= CURRENT_DATE()</span>
-<span class="s2">        AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= cast(DATE_SUB(CURRENT_DATE(), INTERVAL 2 YEAR) as CHAR);    </span>
+<span class="s2">        AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= cast(DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH) as CHAR);    </span>
 <span class="s2">        &quot;&quot;&quot;</span>
 <span class="p">}</span>
 <span class="n">df_structure</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:07:20,702 - INFO - LECTURA DE QUERYS
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:16:55,264 - INFO - LECTURA DE QUERYS
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="c1"># Lista de consultas actualizada</span>
@@ -1840,12 +1840,10 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor</span><span class="p">,</span> <span class="n">qr_structure</span><span class="p">,</span> <span class="n">df_structure</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:07:20,809 - INFO - CONEXION A BASE
-
-
-2024-10-26 13:07:21,395 - INFO - Cargando query 
-2024-10-26 13:07:55,710 - INFO - Cargada query --- 34.31 seconds ---
-2024-10-26 13:07:55,810 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 35.00 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:16:55,406 - INFO - CONEXION A BASE 
+2024-10-28 18:17:01,407 - INFO - Cargando query 
+2024-10-28 18:17:36,968 - INFO - Cargada query, 63 registros finales obtenidos. --- 35.56 seconds ---
+2024-10-28 18:17:38,844 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 43.43 seconds ---
 </code></pre></div>
 
 <h3 id="consulta-de-codigos-de-documentos-y-conexion-a-base-de-datos-dwh">Consulta de Códigos de Documentos y Conexión a Base de Datos DWH<a class="headerlink" href="#consulta-de-codigos-de-documentos-y-conexion-a-base-de-datos-dwh" title="Permanent link">&para;</a></h3>
@@ -1868,18 +1866,70 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor2</span><span class="p">,</span> <span class="n">qr_structure_cod</span><span class="p">,</span> <span class="n">df_codigos</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:07:55,847 - INFO - LECTURA DE QUERYS
-2024-10-26 13:07:55,873 - INFO - CONEXION A BASE DWH
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:17:38,856 - INFO - LECTURA DE QUERYS
+2024-10-28 18:17:38,858 - INFO - CONEXION A BASE DWH
 
 
 
-SELECT * FROM dwh.BD_Dim_Codigo_Documento;
+        SELECT PERIODO, 
+               ID_AFILIADO,
+               MAX(CODIGO_DOCUMENTO) as CODIGO_DOCUMENTO, 
+               MAX(ID) as ID, 
+               MAX(CODBEN) as CODIGO_BENEFICIARIO,  
+               MAX(CODCAT) as CODIGO_CATEGORIA, 
+               MAX(CODZON) as CODIGO_ZONA, 
+               MAX(CODEST) as CODIGO_ESTADO, 
+               TIPO, 
+               COD, 
+               ESTADO,
+               MAX(SE_RETIRO) as SE_RETIRO, 
+               MAX(SE_AFILIO) as SE_AFILIO,  
+               MAX(NUEVO) as NUEVO, 
+               MAX(SEXO) as SEXO, 
+               MAX(CAPTRA) as CAPACIDAD_TRABAJO, 
+               MAX(NIVEL_EDU) as NIVEL_EDUCATIVO, 
+               MAX(FECNAC) as FECHA_NACIMIENTO, 
+               MAX(PARENT) as PARENTESCO, 
+               MAX(CODCIU) as CODIGO_CIUDAD, 
+               MAX(CALSUC) as CALIFICACION_SUCURSAL, 
+               MAX(TIPAFI) as TIPO_AFILIACION, 
+               MAX(NUMCUO) as NUMERO_CUOTAS, 
+               MAX(SUBLIQ) as SUBSIDIO_LIQUIDADO  
+        FROM (
+            SELECT 
+                   ID_AFILIADO,
+                   CODIGO_DOCUMENTO, 
+                   DOCUMENTO as ID, 
+                   CODIGO_BENEFICIARIO as CODBEN, 
+                   ESTADO, 
+                   PERIODO, 
+                   CODIGO_ZONA as CODZON, 
+                   CODIGO_ESTADO as CODEST, 
+                   DOCUMENTO_BENEFICIARIO as COD, 
+                   CODIGO_CATEGORIA as CODCAT, 
+                   SEXO,
+                   CAPACIDAD_TRABAJO as CAPTRA,
+                   NIVEL_EDUCACION as NIVEL_EDU, 
+                   FECHA_NACIMIENTO as FECNAC, 
+                   PARENTESCO as PARENT, 
+                   CODIGO_CIUDAD as CODCIU, 
+                   &#39;Beneficiario&#39; as TIPO, 
+                   CALIFICACION_SUCURSAL as CALSUC, 
+                   TIPO_AFILIACION as TIPAFI, 
+                   NUMERO_CUOTAS as NUMCUO, 
+                   SUBSIDIO_LIQUIDADO as SUBLIQ, 
+                   IF(PERIODO_RETIRO = PERIODO, 1, 0) as SE_RETIRO,
+                   IF(PERIODO_AFILIACION = PERIODO, 1, 0) as SE_AFILIO,
+                   IF(PERIODO = PERIODO_SISTEMA, 1, 0) as NUEVO
+            FROM dwh.BD_Fact_Beneficiarios_p1 as p
+        ) as h
+        GROUP BY PERIODO, TIPO, COD, ESTADO;
 
 
 
-2024-10-26 13:07:56,473 - INFO - Cargando query 
-2024-10-26 13:07:56,524 - INFO - Cargada query --- 0.05 seconds ---
-2024-10-26 13:07:56,621 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 0.73 seconds ---
+2024-10-28 18:17:44,802 - INFO - Cargando query 
+2024-10-28 18:17:44,851 - INFO - Cargada query, 10 registros finales obtenidos. --- 0.05 seconds ---
+2024-10-28 18:17:44,944 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 6.08 seconds ---
 </code></pre></div>
 
 <h3 id="union-de-dataframes-para-vincular-informacion-de-codigos-de-documento">Unión de DataFrames para Vincular Información de Códigos de Documento<a class="headerlink" href="#union-de-dataframes-para-vincular-informacion-de-codigos-de-documento" title="Permanent link">&para;</a></h3>
@@ -1945,7 +1995,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     <tr>
       <th>0</th>
       <td>8648468</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>1000239573</td>
@@ -1955,10 +2005,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>1</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
       <td>2022-01-18</td>
       <td>51084473954</td>
       <td>202201</td>
@@ -1969,7 +2019,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     <tr>
       <th>1</th>
       <td>386207</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>1001023949</td>
@@ -1979,10 +2029,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>1</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
       <td>2019-01-10</td>
       <td>21104383175</td>
       <td>201901</td>
@@ -1993,7 +2043,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     <tr>
       <th>2</th>
       <td>8644780</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>1001403781</td>
@@ -2003,10 +2053,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>2.0</td>
-      <td>69988.0</td>
+      <td>79114.0</td>
       <td>2021-11-02</td>
       <td>51084473707</td>
       <td>202111</td>
@@ -2017,7 +2067,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     <tr>
       <th>3</th>
       <td>8644780</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>1001403781</td>
@@ -2027,10 +2077,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>2.0</td>
-      <td>69988.0</td>
+      <td>79114.0</td>
       <td>2021-11-08</td>
       <td>51084473707</td>
       <td>202111</td>
@@ -2041,22 +2091,22 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     <tr>
       <th>4</th>
       <td>8663708</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>7598318</td>
       <td>08</td>
       <td>1085104776</td>
-      <td>2</td>
+      <td>1</td>
       <td>1</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
+      <td>1</td>
       <td>1.0</td>
-      <td>40243.0</td>
+      <td>45491.0</td>
       <td>2022-10-11</td>
-      <td>21085104776</td>
+      <td>11085104776</td>
       <td>202210</td>
       <td>None</td>
       <td>1</td>
@@ -2170,12 +2220,12 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 <span class="n">df_final</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 <span class="n">df_final</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:08:02,788 - INFO - Intentando conexión a la base DWH...
-2024-10-26 13:08:02,790 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 13:08:03,362 - INFO - Almacenando tabla única en DWH como BD_Fact_Beneficiarios_p1
-2024-10-26 13:16:00,032 - INFO - Tabla almacenada correctamente.
-2024-10-26 13:16:00,189 - INFO - ALMACENAMIENTO ---  --- 7.96 minutes ---
-2024-10-26 13:16:00,190 - INFO - Finalizando proceso de almacenamiento en DWH.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:17:45,094 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:17:45,096 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 18:17:50,039 - INFO - Almacenando tabla única en DWH como BD_Fact_Beneficiarios_p1
+2024-10-28 18:18:00,006 - INFO - Tabla almacenada correctamente. 63 registros finales obtenidos.
+2024-10-28 18:18:00,129 - INFO - ALMACENAMIENTO ---  --- 15.04 seconds ---
+2024-10-28 18:18:00,130 - INFO - Finalizando proceso de almacenamiento en DWH.
 </code></pre></div>
 
 <div>
@@ -2225,7 +2275,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>8648468</td>
       <td>CC1000239573</td>
       <td>1000239573</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>None</td>
@@ -2233,10 +2283,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>5</td>
       <td>1</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
       <td>2022-01-18</td>
       <td>51084473954</td>
       <td>202201</td>
@@ -2249,7 +2299,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>386207</td>
       <td>CC1001023949</td>
       <td>1001023949</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>None</td>
@@ -2257,10 +2307,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>1</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
       <td>2019-01-10</td>
       <td>21104383175</td>
       <td>201901</td>
@@ -2273,7 +2323,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>8644780</td>
       <td>CC1001403781</td>
       <td>1001403781</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>None</td>
@@ -2281,10 +2331,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>5</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>2.0</td>
-      <td>69988.0</td>
+      <td>79114.0</td>
       <td>2021-11-02</td>
       <td>51084473707</td>
       <td>202111</td>
@@ -2297,7 +2347,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>8644780</td>
       <td>CC1001403781</td>
       <td>1001403781</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>None</td>
@@ -2305,10 +2355,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>5</td>
       <td>2</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>2.0</td>
-      <td>69988.0</td>
+      <td>79114.0</td>
       <td>2021-11-08</td>
       <td>51084473707</td>
       <td>202111</td>
@@ -2321,20 +2371,20 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>8663708</td>
       <td>CC7598318</td>
       <td>7598318</td>
-      <td>202211</td>
+      <td>202305</td>
       <td>A</td>
       <td>1</td>
       <td>08</td>
       <td>1085104776</td>
-      <td>2</td>
+      <td>1</td>
       <td>1</td>
       <td>...</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
+      <td>1</td>
       <td>1.0</td>
-      <td>40243.0</td>
+      <td>45491.0</td>
       <td>2022-10-11</td>
-      <td>21085104776</td>
+      <td>11085104776</td>
       <td>202210</td>
       <td>None</td>
       <td>1</td>
@@ -2365,7 +2415,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>...</td>
     </tr>
     <tr>
-      <th>86</th>
+      <th>58</th>
       <td>8644780</td>
       <td>CC1082925805</td>
       <td>1082925805</td>
@@ -2378,7 +2428,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>...</td>
       <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
-      <td>1.0</td>
+      <td>1</td>
       <td>1.0</td>
       <td>44491.0</td>
       <td>2021-11-02</td>
@@ -2389,7 +2439,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>CC</td>
     </tr>
     <tr>
-      <th>87</th>
+      <th>59</th>
       <td>8644780</td>
       <td>CC1082925805</td>
       <td>1082925805</td>
@@ -2402,7 +2452,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>...</td>
       <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
-      <td>1.0</td>
+      <td>1</td>
       <td>1.0</td>
       <td>44491.0</td>
       <td>2021-11-08</td>
@@ -2413,7 +2463,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>CC</td>
     </tr>
     <tr>
-      <th>88</th>
+      <th>60</th>
       <td>386207</td>
       <td>CC1001023949</td>
       <td>1001023949</td>
@@ -2426,7 +2476,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>1</td>
       <td>...</td>
       <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
-      <td>1.0</td>
+      <td>1</td>
       <td>1.0</td>
       <td>44491.0</td>
       <td>2019-01-10</td>
@@ -2437,7 +2487,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>CC</td>
     </tr>
     <tr>
-      <th>89</th>
+      <th>61</th>
       <td>8644780</td>
       <td>CC1001403781</td>
       <td>1001403781</td>
@@ -2450,7 +2500,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>...</td>
       <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
-      <td>1.0</td>
+      <td>1</td>
       <td>1.0</td>
       <td>44491.0</td>
       <td>2021-11-02</td>
@@ -2461,7 +2511,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>CC</td>
     </tr>
     <tr>
-      <th>90</th>
+      <th>62</th>
       <td>8644780</td>
       <td>CC1001403781</td>
       <td>1001403781</td>
@@ -2474,7 +2524,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2</td>
       <td>...</td>
       <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
-      <td>1.0</td>
+      <td>1</td>
       <td>1.0</td>
       <td>44491.0</td>
       <td>2021-11-08</td>
@@ -2486,7 +2536,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
     </tr>
   </tbody>
 </table>
-<p>91 rows × 28 columns</p>
+<p>63 rows × 28 columns</p>
 </div>
 
 <h3 id="conexion-a-la-base-de-datos-dwh-y-carga-de-tablas">Conexión a la Base de Datos DWH y Carga de Tablas<a class="headerlink" href="#conexion-a-la-base-de-datos-dwh-y-carga-de-tablas" title="Permanent link">&para;</a></h3>
@@ -2503,10 +2553,10 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor</span><span class="p">,</span> <span class="n">qr_structure2</span><span class="p">,</span> <span class="n">df_structure2</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 <span class="n">df_structure2</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:19:55,404 - INFO - CONEXION A DWH 
-2024-10-26 13:19:55,980 - INFO - Cargando query 
-2024-10-26 13:19:56,082 - INFO - Cargada query --- 0.10 seconds ---
-2024-10-26 13:19:56,175 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 0.77 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:18:00,244 - INFO - CONEXION A DWH 
+2024-10-28 18:18:04,761 - INFO - Cargando query 
+2024-10-28 18:18:04,870 - INFO - Cargada query, 46 registros finales obtenidos. --- 0.11 seconds ---
+2024-10-28 18:18:08,993 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 8.75 seconds ---
 </code></pre></div>
 
 <div>
@@ -2553,12 +2603,12 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
   <tbody>
     <tr>
       <th>0</th>
-      <td>202211</td>
+      <td>202305</td>
       <td>CC1000239573</td>
       <td>1</td>
       <td>1084473954</td>
       <td>8648468</td>
-      <td>NaN</td>
+      <td>1</td>
       <td>47001</td>
       <td>None</td>
       <td>Beneficiario</td>
@@ -2570,19 +2620,19 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2021-11-11</td>
       <td>1</td>
       <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>202211</td>
+      <td>202305</td>
       <td>CC1001023949</td>
       <td>1</td>
       <td>1104383175</td>
       <td>386207</td>
-      <td>NaN</td>
+      <td>1</td>
       <td>47288</td>
       <td>None</td>
       <td>Beneficiario</td>
@@ -2594,19 +2644,19 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2014-10-18</td>
       <td>1</td>
       <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>202211</td>
+      <td>202305</td>
       <td>CC1001403781</td>
       <td>1</td>
       <td>1084473707</td>
       <td>8644780</td>
-      <td>NaN</td>
+      <td>1</td>
       <td>47001</td>
       <td>None</td>
       <td>Beneficiario</td>
@@ -2618,23 +2668,23 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2021-10-04</td>
       <td>1</td>
       <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTE CATEGORIA C CON DERECHO TEMPORAL A...</td>
+      <td>13</td>
       <td>2.0</td>
-      <td>69988.0</td>
+      <td>79114.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>202211</td>
+      <td>202305</td>
       <td>CC7598318</td>
       <td>1</td>
       <td>1085104776</td>
       <td>8663708</td>
-      <td>NaN</td>
+      <td>1</td>
       <td>47268</td>
       <td>08</td>
       <td>Beneficiario</td>
-      <td>21085104776</td>
+      <td>11085104776</td>
       <td>...</td>
       <td>1</td>
       <td>2</td>
@@ -2642,19 +2692,19 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2004-12-25</td>
       <td>4</td>
       <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
+      <td>1</td>
       <td>1.0</td>
-      <td>40243.0</td>
+      <td>45491.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>202212</td>
+      <td>202306</td>
       <td>CC1000239573</td>
       <td>1</td>
       <td>1084473954</td>
       <td>8648468</td>
-      <td>NaN</td>
+      <td>1</td>
       <td>47001</td>
       <td>None</td>
       <td>Beneficiario</td>
@@ -2666,15 +2716,22 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
       <td>2021-11-11</td>
       <td>1</td>
       <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
+      <td>DEPENDIENTES (NO INCLUYE: SERVICIO DOMESTICO N...</td>
+      <td>1</td>
       <td>1.0</td>
-      <td>34994.0</td>
+      <td>39557.0</td>
     </tr>
   </tbody>
 </table>
 <p>5 rows × 24 columns</p>
 </div>
+
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">df_structure2</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">][</span><span class="s1">&#39;PERIODO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</code></pre></div>
+<div class="codehilite"><pre><span></span><code>[&#39;202305&#39; &#39;202306&#39; &#39;202307&#39; &#39;202308&#39; &#39;202309&#39; &#39;202310&#39; &#39;202311&#39; &#39;202312&#39;
+ &#39;202401&#39; &#39;202402&#39; &#39;202403&#39; &#39;202404&#39; &#39;202405&#39; &#39;202406&#39; &#39;202407&#39; &#39;202408&#39;
+ &#39;202409&#39;]
+</code></pre></div>
 
 <h3 id="guardado-de-datos-en-dwh-y-verificacion-de-columnas">Guardado de Datos en DWH y Verificación de Columnas<a class="headerlink" href="#guardado-de-datos-en-dwh-y-verificacion-de-columnas" title="Permanent link">&para;</a></h3>
 <p>En este código, el DataFrame <code>df_final2</code> (cargado desde <code>df_structure2['query']</code>) se guarda en la base de datos DWH en la tabla <code>BD_Fact_Beneficiarios_p2</code> utilizando la función <code>guardar_en_dwh</code>. Esta función recibe <code>multiple=False</code> para realizar una carga única y <code>if_exists='replace'</code> para reemplazar la tabla si ya existe en la base de datos, asegurando que los datos más recientes reemplacen cualquier versión anterior.</p>
@@ -2684,12 +2741,12 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 <span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">df_final2</span><span class="p">,</span> <span class="s1">&#39;BD_Fact_Beneficiarios_p2&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 <span class="n">df_final2</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:20:11,702 - INFO - Intentando conexión a la base DWH...
-2024-10-26 13:20:11,704 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 13:20:12,365 - INFO - Almacenando tabla única en DWH como BD_Fact_Beneficiarios_p2
-2024-10-26 13:20:13,287 - INFO - Tabla almacenada correctamente.
-2024-10-26 13:20:13,404 - INFO - ALMACENAMIENTO ---  --- 1.70 seconds ---
-2024-10-26 13:20:13,405 - INFO - Finalizando proceso de almacenamiento en DWH.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:18:09,034 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:18:09,036 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 18:18:13,696 - INFO - Almacenando tabla única en DWH como BD_Fact_Beneficiarios_p2
+2024-10-28 18:18:21,147 - INFO - Tabla almacenada correctamente. 46 registros finales obtenidos.
+2024-10-28 18:18:25,292 - INFO - ALMACENAMIENTO ---  --- 16.26 seconds ---
+2024-10-28 18:18:25,294 - INFO - Finalizando proceso de almacenamiento en DWH.
 
 
 
@@ -2723,7 +2780,7 @@ SELECT * FROM dwh.BD_Dim_Codigo_Documento;
 
 <div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FINAL ETL --- </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds ---&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 13:16:02,871 - INFO - FINAL ETL --- 522.22 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:18:25,344 - INFO - FINAL ETL --- 90.13 seconds ---
 </code></pre></div>
 
 

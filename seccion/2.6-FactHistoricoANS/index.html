@@ -1653,17 +1653,16 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">testfunciones</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;COMIENZO ETL&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:30:40,693 - INFO - Importacion de funciones correcta, 26-10-2024 22:30
-
-
-2024-10-26 22:30:40,697 - INFO - COMIENZO ETL
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:27:02,075 - INFO - Importacion de funciones correcta, 28-10-2024 18:27
+2024-10-28 18:27:02,086 - INFO - COMIENZO ETL
 </code></pre></div>
 
 <h3 id="consulta-de-datos-y-union-de-tablas">Consulta de Datos y Unión de Tablas<a class="headerlink" href="#consulta-de-datos-y-union-de-tablas" title="Permanent link">&para;</a></h3>
 <p>En este código, se define una consulta SQL que combina datos de tres tablas (<code>subsi02</code>, <code>subsi15</code> y <code>subsi23</code>) de la base de datos <code>subsidio</code> mediante la operación <code>UNION</code>. La consulta unifica registros de diferentes tipos de entidades (<code>Empresa</code>, <code>Trabajador</code>, y <code>Beneficiario</code>), asignándoles una fuente específica según la tabla de origen. Cada selección dentro de la <code>UNION</code> crea un campo <code>periodo</code> basado en la fecha (<code>fecafi</code> o <code>fecpre</code>), que concatena el año y el mes. También incluye los campos <code>coddoc</code>, <code>Identificacion</code>, <code>fecafi</code>, <code>fecapr</code>, <code>Tipo</code> y <code>Fuente</code>. En el caso de <code>subsi23</code>, se emplea una <code>INNER JOIN</code> con la tabla <code>subsi22</code> para obtener información adicional de identificación, basada en el campo común <code>codben</code>. La condición <code>WHERE</code> restringe los resultados a los años 2022 y 2023 para todas las tablas. </p>
+<p>La consulta está diseñada para recuperar únicamente los registros de los últimos 18 periodos (meses) desde la fecha actual. Para lograrlo, En cada WHERE, se filtra el campo periodo utilizando la función DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH), que calcula la fecha límite de hace 18 meses. Esta condición es dinámica y siempre asegura que solo se devuelvan registros dentro de este rango de 18 meses.</p>
+<p>En el caso de la tabla subsi23, se emplea una INNER JOIN con subsi22 para obtener información adicional de identificación, basada en el campo común codben.</p>
 <p>Finalmente, el logger registra un mensaje indicando la lectura de la consulta, lo que ayuda a monitorear la ejecución del proceso en tiempo real. La estructura generada en <code>qr_structure</code> estará lista para ejecutarse y almacenar los resultados en <code>df_structure</code>, permitiendo realizar análisis y procesamiento posteriores.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#Lista de querys</span>
-<span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                select </span>
 <span class="s2">                    CONCAT(YEAR(fecafi), LPAD(MONTH(fecafi), 2, &#39;0&#39;)) AS periodo, </span>
@@ -1674,7 +1673,7 @@
 <span class="s2">                    &#39;Empresa&#39; as Tipo, </span>
 <span class="s2">                    &#39;subsi02&#39; Fuente</span>
 <span class="s2">                from subsidio.subsi02</span>
-<span class="s2">                where YEAR(fecafi)&gt;=2022 AND YEAR(fecafi)&lt;=2023</span>
+<span class="s2">                where CONCAT(YEAR(fecafi), LPAD(MONTH(fecafi), 2, &#39;0&#39;)) &gt;= DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH), &#39;%Y%m&#39;)</span>
 
 <span class="s2">                UNION</span>
 
@@ -1687,7 +1686,7 @@
 <span class="s2">                    &#39;Trabajador&#39; as Tipo, </span>
 <span class="s2">                    &#39;subsi15&#39; Fuente</span>
 <span class="s2">                from subsidio.subsi15 as s15</span>
-<span class="s2">                where YEAR(fecpre)&gt;=2022 AND YEAR(fecpre)&lt;=2023</span>
+<span class="s2">                where CONCAT(YEAR(s15.fecpre), LPAD(MONTH(s15.fecpre), 2, &#39;0&#39;)) &gt;= DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH), &#39;%Y%m&#39;)</span>
 
 <span class="s2">                UNION</span>
 
@@ -1702,13 +1701,13 @@
 <span class="s2">                from subsidio.subsi23 as k1</span>
 <span class="s2">                INNER JOIN (select documento, coddoc, codben from subsidio.subsi22) as k2</span>
 <span class="s2">                ON k1.codben = k2.codben</span>
-<span class="s2">                where YEAR(fecpre)&gt;=2022 AND YEAR(fecpre)&lt;=2023;</span>
+<span class="s2">                where CONCAT(YEAR(fecpre), LPAD(MONTH(fecpre), 2, &#39;0&#39;)) &gt;= DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 18 MONTH), &#39;%Y%m&#39;);</span>
 <span class="s2">&quot;&quot;&quot;</span>
 <span class="p">}</span>
 <span class="n">df_structure</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:30:40,734 - INFO - LECTURA DE QUERYS
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:27:02,097 - INFO - LECTURA DE QUERYS
 </code></pre></div>
 
 <h3 id="conexion-y-cargue-de-tablas-desde-sql-con-registro-de-duracion">Conexión y cargue de tablas desde SQL con registro de duración<a class="headerlink" href="#conexion-y-cargue-de-tablas-desde-sql-con-registro-de-duracion" title="Permanent link">&para;</a></h3>
@@ -1719,10 +1718,10 @@
 
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor</span><span class="p">,</span> <span class="n">qr_structure</span><span class="p">,</span> <span class="n">df_structure</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:30:40,841 - INFO - CONEXION A BASE MINERVA
-2024-10-26 22:30:41,380 - INFO - Cargando query 
-2024-10-26 22:30:52,129 - INFO - Cargada query, 141,975 registros finales obtenidos. --- 10.75 seconds ---
-2024-10-26 22:30:52,223 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 11.38 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:27:02,178 - INFO - CONEXION A BASE MINERVA
+2024-10-28 18:27:02,731 - INFO - Cargando query 
+2024-10-28 18:28:05,522 - INFO - Cargada query, 137,314 registros finales obtenidos. --- 1.05 minutes ---
+2024-10-28 18:28:05,624 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 1.06 minutes ---
 </code></pre></div>
 
 <h3 id="procesamiento-de-datos-y-transformacion-en-df">Procesamiento de Datos y Transformación en <code>df</code><a class="headerlink" href="#procesamiento-de-datos-y-transformacion-en-df" title="Permanent link">&para;</a></h3>
@@ -1771,8 +1770,8 @@
 <span class="c1"># Mostrar el DataFrame final para ver los resultados</span>
 <span class="n">df_filtered</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:30:55,248 - INFO - Proceso ETL completado, 84707 registros finales obtenidos.
-2024-10-26 22:30:55,249 - INFO - Finalizado ETL en 14.64 segundos.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:28:08,348 - INFO - Proceso ETL completado, 65582 registros finales obtenidos.
+2024-10-28 18:28:08,350 - INFO - Finalizado ETL en 66.31 segundos.
 </code></pre></div>
 
 <div>
@@ -1831,18 +1830,30 @@
     </tr>
     <tr>
       <th>2</th>
-      <td>202302</td>
+      <td>202407</td>
       <td>CC</td>
-      <td>1001875363</td>
-      <td>2023-02-14</td>
-      <td>2023-02-14</td>
+      <td>1000697509</td>
+      <td>2024-07-05</td>
+      <td>2024-07-05</td>
       <td>Empresa</td>
       <td>subsi02</td>
       <td>1</td>
-      <td>20230211001875363Emp</td>
+      <td>20240711000697509Emp</td>
     </tr>
     <tr>
       <th>3</th>
+      <td>202408</td>
+      <td>CC</td>
+      <td>1001832447</td>
+      <td>2024-08-15</td>
+      <td>2024-08-15</td>
+      <td>Empresa</td>
+      <td>subsi02</td>
+      <td>1</td>
+      <td>20240811001832447Emp</td>
+    </tr>
+    <tr>
+      <th>4</th>
       <td>202310</td>
       <td>CC</td>
       <td>1002130415</td>
@@ -1852,18 +1863,6 @@
       <td>subsi02</td>
       <td>1</td>
       <td>20231011002130415Emp</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>202205</td>
-      <td>CC</td>
-      <td>1002153642</td>
-      <td>2022-05-01</td>
-      <td>2022-07-19</td>
-      <td>Empresa</td>
-      <td>subsi02</td>
-      <td>1</td>
-      <td>20220511002153642Emp</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1878,68 +1877,68 @@
       <td>...</td>
     </tr>
     <tr>
-      <th>141970</th>
-      <td>202205</td>
+      <th>137309</th>
+      <td>202306</td>
+      <td>TI</td>
+      <td>1083053889</td>
+      <td>2023-06-27</td>
+      <td>2023-06-29</td>
+      <td>Beneficiario</td>
+      <td>subsi23</td>
+      <td>2</td>
+      <td>20230621083053889Ben</td>
+    </tr>
+    <tr>
+      <th>137310</th>
+      <td>202306</td>
+      <td>TI</td>
+      <td>1083053907</td>
+      <td>2023-06-27</td>
+      <td>2023-06-29</td>
+      <td>Beneficiario</td>
+      <td>subsi23</td>
+      <td>2</td>
+      <td>20230621083053907Ben</td>
+    </tr>
+    <tr>
+      <th>137311</th>
+      <td>202310</td>
       <td>RC</td>
-      <td>1082417055</td>
-      <td>2022-05-11</td>
-      <td>2022-05-13</td>
+      <td>1083055299</td>
+      <td>2023-10-18</td>
+      <td>2023-10-19</td>
       <td>Beneficiario</td>
       <td>subsi23</td>
       <td>3</td>
-      <td>20220531082417055Ben</td>
+      <td>20231031083055299Ben</td>
     </tr>
     <tr>
-      <th>141971</th>
-      <td>202201</td>
-      <td>TI</td>
-      <td>1221971336</td>
-      <td>2022-01-03</td>
-      <td>2024-07-01</td>
+      <th>137312</th>
+      <td>202311</td>
+      <td>PT</td>
+      <td>5200619</td>
+      <td>2023-11-08</td>
+      <td>2023-11-15</td>
       <td>Beneficiario</td>
       <td>subsi23</td>
-      <td>2</td>
-      <td>20220121221971336Ben</td>
+      <td>15</td>
+      <td>202311155200619Ben</td>
     </tr>
     <tr>
-      <th>141972</th>
-      <td>202204</td>
-      <td>TI</td>
-      <td>1080431822</td>
-      <td>2022-04-04</td>
-      <td>2022-04-08</td>
+      <th>137313</th>
+      <td>202406</td>
+      <td>RC</td>
+      <td>1083069197</td>
+      <td>2024-06-01</td>
+      <td>2024-06-01</td>
       <td>Beneficiario</td>
       <td>subsi23</td>
-      <td>2</td>
-      <td>20220421080431822Ben</td>
-    </tr>
-    <tr>
-      <th>141973</th>
-      <td>202305</td>
-      <td>CC</td>
-      <td>85380250</td>
-      <td>2023-05-02</td>
-      <td>2023-05-08</td>
-      <td>Beneficiario</td>
-      <td>subsi23</td>
-      <td>1</td>
-      <td>202305185380250Ben</td>
-    </tr>
-    <tr>
-      <th>141974</th>
-      <td>202305</td>
-      <td>CC</td>
-      <td>57424806</td>
-      <td>2023-05-02</td>
-      <td>2023-05-08</td>
-      <td>Beneficiario</td>
-      <td>subsi23</td>
-      <td>1</td>
-      <td>202305157424806Ben</td>
+      <td>3</td>
+      <td>20240631083069197Ben</td>
     </tr>
   </tbody>
 </table>
-<p>84707 rows × 9 columns</p>
+<p>65582 rows × 9 columns</p>
 </div>
 
 <h3 id="generacion-de-id-unico-y-seleccion-de-columnas-en-df_final">Generación de ID Único y Selección de Columnas en <code>df_final</code><a class="headerlink" href="#generacion-de-id-unico-y-seleccion-de-columnas-en-df_final" title="Permanent link">&para;</a></h3>
@@ -1974,12 +1973,12 @@
 <div class="highlight"><pre><span></span><code><span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">df_final</span><span class="p">,</span> <span class="s1">&#39;BD_Fact_HistoricoANS&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 <span class="n">df_final</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:30:55,356 - INFO - Intentando conexión a la base DWH...
-2024-10-26 22:30:55,358 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 22:30:55,896 - INFO - Almacenando tabla única en DWH como BD_Fact_HistoricoANS
-2024-10-26 22:31:07,917 - INFO - Tabla almacenada correctamente. 84,707 registros finales obtenidos.
-2024-10-26 22:31:08,070 - INFO - ALMACENAMIENTO ---  --- 12.71 seconds ---
-2024-10-26 22:31:08,072 - INFO - Finalizando proceso de almacenamiento en DWH.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:28:08,439 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:28:08,477 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 18:28:09,320 - INFO - Almacenando tabla única en DWH como BD_Fact_HistoricoANS
+2024-10-28 18:28:19,527 - INFO - Tabla almacenada correctamente. 65,582 registros finales obtenidos.
+2024-10-28 18:28:19,659 - INFO - ALMACENAMIENTO ---  --- 11.22 seconds ---
+2024-10-28 18:28:19,661 - INFO - Finalizando proceso de almacenamiento en DWH.
 
 
 
@@ -1999,7 +1998,7 @@
 
 <div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FINAL ETL --- </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds ---&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 22:31:08,085 - INFO - FINAL ETL --- 27.48 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:28:19,675 - INFO - FINAL ETL --- 77.63 seconds ---
 </code></pre></div>
 
 

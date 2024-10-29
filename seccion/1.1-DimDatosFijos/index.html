@@ -1827,7 +1827,13 @@
     <span class="s2">&quot;Con&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        SELECT </span>
 <span class="s1">            CONCAT(coddoc, cedcon) AS ID, </span>
-<span class="s1">            CONCAT(prinom, &#39; &#39;, segnom, &#39; &#39;, priape, &#39; &#39;, segape) AS NOMBRE, </span>
+<span class="s1">            #CONCAT(prinom, &#39; &#39;, segnom, &#39; &#39;, priape, &#39; &#39;, segape) AS NOMBRE, </span>
+<span class="s1">            CONCAT(</span>
+<span class="s1">            IFNULL(prinom, &#39;&#39;), &#39; &#39;, </span>
+<span class="s1">            IFNULL(segnom, &#39;&#39;), &#39; &#39;, </span>
+<span class="s1">            IFNULL(priape, &#39;&#39;), &#39; &#39;, </span>
+<span class="s1">            IFNULL(segape, &#39;&#39;)</span>
+<span class="s1">            ) AS RAZON_SOCIAL,</span>
 <span class="s1">            fecnac AS FECHA_NACIMIENTO, </span>
 <span class="s1">            sexo AS SEXO, </span>
 <span class="s1">            fecest  AS FECHA_ESTADO, </span>

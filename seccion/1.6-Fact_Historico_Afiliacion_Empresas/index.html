@@ -1652,208 +1652,130 @@ Script--&gt;&gt;Usuario: Proceso ETL completado con éxito</code></pre>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">testfunciones</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;COMIENZO ETL&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:20,370 - INFO - Importacion de funciones correcta, 26-10-2024 16:21
-2024-10-26 16:21:20,372 - INFO - COMIENZO ETL
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:01:57,419 - INFO - Importacion de funciones correcta, 28-10-2024 18:01
+2024-10-28 18:01:57,421 - INFO - COMIENZO ETL
 </code></pre></div>
 
 <h3 id="consulta-de-estructura-para-datos-de-afiliados-y-empleadores">Consulta de Estructura para Datos de Afiliados y Empleadores<a class="headerlink" href="#consulta-de-estructura-para-datos-de-afiliados-y-empleadores" title="Permanent link">&para;</a></h3>
-<p>El código construye una consulta SQL compleja que extrae y agrupa información detallada de afiliados y empleadores a partir de varias tablas de una base de datos SQL. La consulta utiliza subconsultas, funciones de agregación y condiciones <code>JOIN</code> para reunir datos relevantes desde múltiples tablas (<code>xml4.xml4c085</code>, <code>xml4.xml4b072</code>, <code>xml4.xml4b001</code>, <code>subsidio.subsi02</code>, y <code>xml4.xml4c086</code>). La estructura principal selecciona campos como <code>nit</code>, <code>periodo</code>, <code>tipide</code>, <code>estado</code>, <code>codciu</code>, <code>tipemp</code>, <code>NumTrab</code>, <code>NumFem</code>, <code>NumMas</code>, entre otros, proporcionando detalles sobre el perfil de los empleadores y los afiliados, su distribución demográfica, así como su historial de afiliación y retiro dentro de un rango de fechas específico. El resultado se almacena en <code>df_structure</code> y se imprime en consola, mientras que se registra una entrada informativa a través de <code>logger.info</code>. Este enfoque permite crear un marco de consulta adaptable para reportes o análisis longitudinales sobre el estado de los empleadores y empleados en la organización.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#1. Consulta de estructura</span>
+<p>El código construye una consulta SQL compleja que extrae y agrupa información detallada de afiliados y empleadores a partir de varias tablas de una base de datos SQL. La consulta utiliza subconsultas, funciones de agregación y condiciones <code>JOIN</code> para reunir datos relevantes desde múltiples tablas (<code>xml4.xml4c085</code>, <code>xml4.xml4b072</code>, <code>xml4.xml4b001</code>, <code>subsidio.subsi02</code>, y <code>xml4.xml4c086</code>). La estructura principal selecciona campos como <code>nit</code>, <code>periodo</code>, <code>tipide</code>, <code>estado</code>, <code>codciu</code>, <code>tipemp</code>, <code>NumTrab</code>, <code>NumFem</code>, <code>NumMas</code>, entre otros, proporcionando detalles sobre el perfil de los empleadores y los afiliados, su distribución demográfica, así como su historial de afiliación y retiro dentro de un rango de los últimos 18 periodos. El resultado se almacena en <code>df_structure</code> y se imprime en consola, mientras que se registra una entrada informativa a través de <code>logger.info</code>. Este enfoque permite crear un marco de consulta adaptable para reportes o análisis longitudinales sobre el estado de los empleadores y empleados en la organización.</p>
+<div class="highlight"><pre><span></span><code><span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    SELECT</span>
+<span class="s1">        p1.nit, p1.periodo, p1.tipide, p1.tipper, p1.estado, p1.divpol as codzon, p1.cod,</span>
+<span class="s1">        p1.nombre as calemp, p1.tipapo, p1.perafi, p1.perret, p2.NumTrab, p1.codciu, </span>
+<span class="s1">        p2.NumFem, p2.NumMas, p1.tipemp, p1.tipsoc, p1.nomcom, p1.razsoc, p1.codact, </span>
+<span class="s1">        p1.fecsis, p1.persis, p1.codest</span>
+<span class="s1">    FROM (</span>
+<span class="s1">        SELECT</span>
+<span class="s1">            p.nit, p.periodo, p.tipide, p.cod, p.tipper, p.estado, p.divpol,</span>
+<span class="s1">            p.nombre, p.tipapo, p.codciu, p.tipemp, p.tipsoc, p.nomcom, p.razsoc, </span>
+<span class="s1">            p.codact, p.perafi, p.perret, p.fecsis, p.persis, p.codest</span>
+<span class="s1">        FROM (</span>
+<span class="s1">            SELECT</span>
+<span class="s1">                b.nit, b.periodo, b.tipide, b.cod, b.tipper, b.estado, b.divpol,</span>
+<span class="s1">                c.perafi, a.nombre, b.tipapo, b.fecret as perret, s.codciu, </span>
+<span class="s1">                d.nombre as tipemp, s.tipsoc, s.nomcom, b.razsoc, b.codact, </span>
+<span class="s1">                s.fecsis, s.persis, s.codest</span>
+<span class="s1">            FROM (</span>
+<span class="s1">                SELECT</span>
+<span class="s1">                    nit, tipide, CONCAT(tipide, nit) as cod,</span>
+<span class="s1">                    periodo, estado, divpol, IF(tipide=7, &#39;J&#39;, &#39;N&#39;) as tipper,</span>
+<span class="s1">                    tipapo, razsoc, codact, tipsec,</span>
+<span class="s1">                    IF(estado = 2 OR estado = 4, periodo, NULL) as fecret</span>
+<span class="s1">                FROM xml4.xml4c085</span>
+<span class="s1">                #WHERE nit=&#39;891780093&#39;</span>
 
-<span class="n">qr_structure</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;query&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;&#39;SELECT</span>
-<span class="s1">p1.nit, p1.periodo, p1.tipide, p1.tipper, p1.estado, p1.divpol as codzon, p1.cod,</span>
-<span class="s1">p1.nombre as calemp, p1.tipapo, p1.perafi, p1.perret, p2.NumTrab, p1.codciu, p2.NumFem, p2.NumMas, p1.tipemp, p1.tipsoc, p1.nomcom, p1.razsoc, p1.codact, p1.fecsis, p1.persis, p1.codest</span>
-<span class="s1">FROM (</span>
-<span class="s1">SELECT</span>
-<span class="s1">p.nit, p.periodo, p.tipide, p.cod, p.tipper, p.estado, p.divpol,</span>
-<span class="s1">#codest,</span>
-<span class="s1">p.nombre, p.tipapo, p.codciu, p.tipemp, p.tipsoc, p.nomcom, p.razsoc, p.codact, p.perafi, p.perret, p.fecsis, p.persis, p.codest</span>
-<span class="s1">FROM</span>
-<span class="s1">(SELECT</span>
-<span class="s1">b.nit, b.periodo, b.tipide, b.cod, b.tipper, b.estado, b.divpol,</span>
-<span class="s1">c.perafi, a.nombre, b.tipapo,</span>
-<span class="s1">b.fecret as perret, s.codciu, d.nombre as tipemp, s.tipsoc, s.nomcom,  b.razsoc, b.codact, s.fecsis, s.persis, s.codest</span>
-<span class="s1">FROM</span>
-
-
-<span class="s1">(SELECT</span>
-<span class="s1">nit, tipide,</span>
-<span class="s1">CONCAT( tipide , nit ) as cod,</span>
-<span class="s1">periodo, estado, divpol, IF(tipide=7, &#39;J&#39;, &#39;N&#39;) as tipper,</span>
-<span class="s1">tipapo, razsoc, codact, tipsec,</span>
-<span class="s1">IF( estado = 2 OR estado = 4, periodo , NULL ) as fecret</span>
-<span class="s1">FROM xml4.xml4c085</span>
-<span class="s1">WHERE nit=&#39;891780093&#39;</span>
-<span class="s1">GROUP BY cod, periodo) as b</span>
-
-<span class="s1">LEFT JOIN xml4.xml4b072 as a</span>
-<span class="s1">ON b.tipapo = a.tipapo</span>
-
-<span class="s1">LEFT JOIN xml4.xml4b001 as d</span>
-<span class="s1">ON b.tipsec = d.tipsec</span>
-
-<span class="s1">LEFT JOIN (select CONCAT(</span>
-<span class="s1">    CAST(</span>
-<span class="s1">        CASE</span>
-<span class="s1">            WHEN coddoc = &#39;CC&#39; THEN 1</span>
-<span class="s1">            WHEN coddoc = &#39;CE&#39; THEN 4</span>
-<span class="s1">            WHEN coddoc = &#39;NI&#39; THEN 7</span>
-<span class="s1">            WHEN coddoc = &#39;PA&#39; THEN 6</span>
-<span class="s1">            WHEN coddoc = &#39;RC&#39; THEN 3</span>
-<span class="s1">            ELSE coddoc</span>
-<span class="s1">        END AS CHAR</span>
-<span class="s1">    ),</span>
-<span class="s1">    nit</span>
-<span class="s1">) AS cod, codciu, tipsoc, nomcom, fecsis, CONCAT( SUBSTRING(fecsis,1,4) , SUBSTRING(fecsis,6,2) ) as persis, codest</span>
-<span class="s1">from subsidio.subsi02</span>
-<span class="s1">group by cod) as s</span>
-<span class="s1">ON b.cod = s.cod</span>
-
-<span class="s1">LEFT JOIN (SELECT CONCAT( tipide , nit ) as cod, MIN(periodo) as perafi from xml4.xml4c085 WHERE estado=1 GROUP BY CONCAT( tipide , nit )) as c</span>
-<span class="s1">ON b.cod = c.cod) as p</span>
-<span class="s1">WHERE  (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
-<span class="s1">AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;)</span>
-<span class="s1">OR</span>
-<span class="s1">(CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
-<span class="s1">AND perret IS NULL)</span>
-<span class="s1">) as p1</span>
-
-<span class="s1">LEFT JOIN (select periodo, nit, COUNT(distinct(concat(coddoc,cedtra) )) as NumTrab , SUM(sexfem) as NumFem , SUM(sexmas) as NumMas</span>
-<span class="s1">            from (select periodo, nit,coddoc,cedtra, IF( tipgen = 2, 1, 0 ) as sexfem, IF( tipgen = 1, 1, 0 ) as sexmas from xml4.xml4c086 group by coddoc, cedtra, nit, periodo) as tra</span>
-<span class="s1">            group by nit, periodo) as p2</span>
-<span class="s1">ON p1.nit = p2.nit</span>
-<span class="s1">AND p1.periodo = p2.periodo</span>
-<span class="s1">;&#39;&#39;&#39;</span><span class="p">}</span>
+<span class="s1">                GROUP BY cod, periodo</span>
+<span class="s1">            ) as b</span>
+<span class="s1">            LEFT JOIN xml4.xml4b072 as a ON b.tipapo = a.tipapo</span>
+<span class="s1">            LEFT JOIN xml4.xml4b001 as d ON b.tipsec = d.tipsec</span>
+<span class="s1">            LEFT JOIN (</span>
+<span class="s1">                SELECT </span>
+<span class="s1">                    CONCAT(</span>
+<span class="s1">                        CAST(</span>
+<span class="s1">                            CASE</span>
+<span class="s1">                                WHEN coddoc = &#39;CC&#39; THEN 1</span>
+<span class="s1">                                WHEN coddoc = &#39;CE&#39; THEN 4</span>
+<span class="s1">                                WHEN coddoc = &#39;NI&#39; THEN 7</span>
+<span class="s1">                                WHEN coddoc = &#39;PA&#39; THEN 6</span>
+<span class="s1">                                WHEN coddoc = &#39;RC&#39; THEN 3</span>
+<span class="s1">                                ELSE coddoc</span>
+<span class="s1">                            END AS CHAR</span>
+<span class="s1">                        ),</span>
+<span class="s1">                        nit</span>
+<span class="s1">                    ) AS cod, codciu, tipsoc, nomcom, fecsis, </span>
+<span class="s1">                    CONCAT(SUBSTRING(fecsis, 1, 4), SUBSTRING(fecsis, 6, 2)) as persis, </span>
+<span class="s1">                    codest</span>
+<span class="s1">                FROM subsidio.subsi02</span>
+<span class="s1">                GROUP BY cod</span>
+<span class="s1">            ) as s ON b.cod = s.cod</span>
+<span class="s1">            LEFT JOIN (</span>
+<span class="s1">                SELECT CONCAT(tipide, nit) as cod, MIN(periodo) as perafi </span>
+<span class="s1">                FROM xml4.xml4c085 </span>
+<span class="s1">                WHERE estado=1 </span>
+<span class="s1">                GROUP BY CONCAT(tipide, nit)</span>
+<span class="s1">            ) as c ON b.cod = c.cod</span>
+<span class="s1">        ) as p</span>
+<span class="s1">        WHERE  </span>
+<span class="s1">            (</span>
+<span class="s1">                CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
+<span class="s1">                AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;)</span>
+<span class="s1">            ) OR (</span>
+<span class="s1">                CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
+<span class="s1">                AND perret IS NULL</span>
+<span class="s1">            )</span>
+<span class="s1">    ) as p1</span>
+<span class="s1">    LEFT JOIN (</span>
+<span class="s1">        SELECT </span>
+<span class="s1">            periodo, nit, COUNT(DISTINCT(CONCAT(coddoc, cedtra))) as NumTrab, </span>
+<span class="s1">            SUM(sexfem) as NumFem, SUM(sexmas) as NumMas</span>
+<span class="s1">        FROM (</span>
+<span class="s1">            SELECT </span>
+<span class="s1">                periodo, nit, coddoc, cedtra, </span>
+<span class="s1">                IF(tipgen = 2, 1, 0) as sexfem, </span>
+<span class="s1">                IF(tipgen = 1, 1, 0) as sexmas </span>
+<span class="s1">            FROM xml4.xml4c086 </span>
+<span class="s1">            GROUP BY coddoc, cedtra, nit, periodo</span>
+<span class="s1">        ) as tra</span>
+<span class="s1">        GROUP BY nit, periodo</span>
+<span class="s1">    ) as p2 ON p1.nit = p2.nit AND p1.periodo = p2.periodo;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">}</span>
 
 <span class="n">df_structure</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qr_structure</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:20,389 - INFO - LECTURA DE QUERYS
-
-
-SELECT
-p1.nit, p1.periodo, p1.tipide, p1.tipper, p1.estado, p1.divpol as codzon, p1.cod,
-p1.nombre as calemp, p1.tipapo, p1.perafi, p1.perret, p2.NumTrab, p1.codciu, p2.NumFem, p2.NumMas, p1.tipemp, p1.tipsoc, p1.nomcom, p1.razsoc, p1.codact, p1.fecsis, p1.persis, p1.codest
-FROM (
-SELECT
-p.nit, p.periodo, p.tipide, p.cod, p.tipper, p.estado, p.divpol,
-#codest,
-p.nombre, p.tipapo, p.codciu, p.tipemp, p.tipsoc, p.nomcom, p.razsoc, p.codact, p.perafi, p.perret, p.fecsis, p.persis, p.codest
-FROM
-(SELECT
-b.nit, b.periodo, b.tipide, b.cod, b.tipper, b.estado, b.divpol,
-c.perafi, a.nombre, b.tipapo,
-b.fecret as perret, s.codciu, d.nombre as tipemp, s.tipsoc, s.nomcom,  b.razsoc, b.codact, s.fecsis, s.persis, s.codest
-FROM
-
-
-(SELECT
-nit, tipide,
-CONCAT( tipide , nit ) as cod,
-periodo, estado, divpol, IF(tipide=7, &#39;J&#39;, &#39;N&#39;) as tipper,
-tipapo, razsoc, codact, tipsec,
-IF( estado = 2 OR estado = 4, periodo , NULL ) as fecret
-FROM xml4.xml4c085
-WHERE nit=&#39;891780093&#39;
-GROUP BY cod, periodo) as b
-
-LEFT JOIN xml4.xml4b072 as a
-ON b.tipapo = a.tipapo
-
-LEFT JOIN xml4.xml4b001 as d
-ON b.tipsec = d.tipsec
-
-LEFT JOIN (select CONCAT(
-    CAST(
-        CASE
-            WHEN coddoc = &#39;CC&#39; THEN 1
-            WHEN coddoc = &#39;CE&#39; THEN 4
-            WHEN coddoc = &#39;NI&#39; THEN 7
-            WHEN coddoc = &#39;PA&#39; THEN 6
-            WHEN coddoc = &#39;RC&#39; THEN 3
-            ELSE coddoc
-        END AS CHAR
-    ),
-    nit
-) AS cod, codciu, tipsoc, nomcom, fecsis, CONCAT( SUBSTRING(fecsis,1,4) , SUBSTRING(fecsis,6,2) ) as persis, codest
-from subsidio.subsi02
-group by cod) as s
-ON b.cod = s.cod
-
-LEFT JOIN (SELECT CONCAT( tipide , nit ) as cod, MIN(periodo) as perafi from xml4.xml4c085 WHERE estado=1 GROUP BY CONCAT( tipide , nit )) as c
-ON b.cod = c.cod) as p
-WHERE  (CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;
-AND CONCAT(SUBSTRING(perret, 1, 4), &#39;-&#39;, SUBSTRING(perret, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;)
-OR
-(CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;
-AND perret IS NULL)
-) as p1
-
-LEFT JOIN (select periodo, nit, COUNT(distinct(concat(coddoc,cedtra) )) as NumTrab , SUM(sexfem) as NumFem , SUM(sexmas) as NumMas
-            from (select periodo, nit,coddoc,cedtra, IF( tipgen = 2, 1, 0 ) as sexfem, IF( tipgen = 1, 1, 0 ) as sexmas from xml4.xml4c086 group by coddoc, cedtra, nit, periodo) as tra
-            group by nit, periodo) as p2
-ON p1.nit = p2.nit
-AND p1.periodo = p2.periodo
-;
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:01:57,434 - INFO - LECTURA DE QUERYS
 </code></pre></div>
 
 <h3 id="consulta-de-estructura-de-empresas-para-el-periodo-especifico">Consulta de Estructura de Empresas para el Período Específico<a class="headerlink" href="#consulta-de-estructura-de-empresas-para-el-periodo-especifico" title="Permanent link">&para;</a></h3>
 <p>La consulta extrae y agrupa información detallada sobre empresas, seleccionando campos clave como <code>periodo</code>, <code>id</code>, <code>tipide</code>, <code>tipper</code>, <code>codzon</code>, <code>codest</code>, y otros relacionados con la clasificación y estado de las empresas en un período determinado. Utilizando subconsultas y funciones de agregación como <code>MAX</code>, <code>MIN</code>, y condicionales <code>IF</code>, la consulta identifica si una empresa fue afiliada o retirada en un periodo específico (<code>seAfilio</code>, <code>seRetiro</code>), y si es una empresa nueva (<code>nuevo</code>). La tabla de origen <code>dwh.op_EmpresasSubsi02_v2</code> aporta datos de los empleados de cada empresa, tales como el número total de trabajadores (<code>NumTrab</code>), trabajadoras (<code>NumFem</code>), y trabajadores hombres (<code>NumMas</code>). Este enfoque permite generar un perfil detallado y categorizado de cada empresa en el periodo seleccionado, almacenándose el resultado en <code>df_structure2</code> y siendo registrado en el log para su verificación y depuración.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#1. Consulta de estructura</span>
-
-<span class="n">qr_structure2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;query&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;&#39;SELECT</span>
-<span class="s1">    periodo, nit as id, tipide, tipper, MAX(codzon) as codzon,</span>
-<span class="s1">MAX(codest) as codest, Tipo, cod, estado,</span>
-<span class="s1">MAX(seRetiro) as seRetiro, MAX(seAfilio) as seAfilio,  MAX(nuevo) as nuevo,</span>
-<span class="s1">MAX(calsuc) as calsuc, MAX(tipapo) as tipapo,</span>
-<span class="s1">MAX(NumTrab), MAX(codciu) as codciu, MAX(tipemp) as tipemp , MAX(tipsoc) as tipsoc , MAX(nomcom) as nomcom, MAX(razsoc) as razsoc,</span>
-<span class="s1">MAX(NumFem) as NumFem, MAX(NumMas) as NumMas, MAX(codact) as codact, MIN(fecsis) as fecsis  FROM (</span>
-
-
-
-<span class="s1">SELECT nit, tipide, tipper, estado, periodo, codzon, codest, cod, &#39;Empresa&#39; as Tipo,</span>
-<span class="s1">calemp as calsuc, tipapo, fecsis, perafi, persis, NumTrab, codciu, NumFem, NumMas, tipemp, tipsoc, nomcom, razsoc, codact,</span>
-<span class="s1">        IF( perret = periodo , 1 , 0 ) as seRetiro,</span>
-<span class="s1">        IF( perafi = periodo , 1 , 0 ) as seAfilio,</span>
-<span class="s1">        IF( periodo = persis , 1 , 0 ) as nuevo</span>
-<span class="s1">FROM  dwh.op_EmpresasSubsi02_v2 as p</span>
-<span class="s1">WHERE</span>
-<span class="s1">CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;</span>
-<span class="s1">        AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;</span>
-
-<span class="s1">) as hh</span>
-<span class="s1">GROUP BY periodo, Tipo, cod, estado;&#39;&#39;&#39;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="n">qr_structure2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;query&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    SELECT</span>
+<span class="s1">        periodo, nit as id, tipide, tipper, MAX(codzon) as codzon,</span>
+<span class="s1">        MAX(codest) as codest, Tipo, cod, estado,</span>
+<span class="s1">        MAX(seRetiro) as seRetiro, MAX(seAfilio) as seAfilio,  MAX(nuevo) as nuevo,</span>
+<span class="s1">        MAX(calsuc) as calsuc, MAX(tipapo) as tipapo,</span>
+<span class="s1">        MAX(NumTrab), MAX(codciu) as codciu, MAX(tipemp) as tipemp , MAX(tipsoc) as tipsoc , </span>
+<span class="s1">        MAX(nomcom) as nomcom, MAX(razsoc) as razsoc,</span>
+<span class="s1">        MAX(NumFem) as NumFem, MAX(NumMas) as NumMas, MAX(codact) as codact, MIN(fecsis) as fecsis</span>
+<span class="s1">    FROM (</span>
+<span class="s1">        SELECT nit, tipide, tipper, estado, periodo, codzon, codest, cod, &#39;Empresa&#39; as Tipo,</span>
+<span class="s1">            calemp as calsuc, tipapo, fecsis, perafi, persis, NumTrab, codciu, NumFem, NumMas, </span>
+<span class="s1">            tipemp, tipsoc, nomcom, razsoc, codact,</span>
+<span class="s1">            IF(perret = periodo, 1, 0) as seRetiro,</span>
+<span class="s1">            IF(perafi = periodo, 1, 0) as seAfilio,</span>
+<span class="s1">            IF(periodo = persis, 1, 0) as nuevo</span>
+<span class="s1">        FROM dwh.op_EmpresasSubsi02_v2 as p</span>
+<span class="s1">        WHERE</span>
+<span class="s1">            CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= DATE_FORMAT(CURDATE(), &#39;%Y-%m-01&#39;)</span>
+<span class="s1">            AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 18 MONTH), &#39;%Y-%m-01&#39;)</span>
+<span class="s1">    ) as hh</span>
+<span class="s1">    GROUP BY periodo, Tipo, cod, estado;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">}</span>
 
 <span class="n">df_structure2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LECTURA DE QUERYS&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">qr_structure2</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:20,407 - INFO - LECTURA DE QUERYS
-
-
-SELECT
-    periodo, nit as id, tipide, tipper, MAX(codzon) as codzon,
-MAX(codest) as codest, Tipo, cod, estado,
-MAX(seRetiro) as seRetiro, MAX(seAfilio) as seAfilio,  MAX(nuevo) as nuevo,
-MAX(calsuc) as calsuc, MAX(tipapo) as tipapo,
-MAX(NumTrab), MAX(codciu) as codciu, MAX(tipemp) as tipemp , MAX(tipsoc) as tipsoc , MAX(nomcom) as nomcom, MAX(razsoc) as razsoc,
-MAX(NumFem) as NumFem, MAX(NumMas) as NumMas, MAX(codact) as codact, MIN(fecsis) as fecsis  FROM (
-
-
-
-SELECT nit, tipide, tipper, estado, periodo, codzon, codest, cod, &#39;Empresa&#39; as Tipo,
-calemp as calsuc, tipapo, fecsis, perafi, persis, NumTrab, codciu, NumFem, NumMas, tipemp, tipsoc, nomcom, razsoc, codact,
-        IF( perret = periodo , 1 , 0 ) as seRetiro,
-        IF( perafi = periodo , 1 , 0 ) as seAfilio,
-        IF( periodo = persis , 1 , 0 ) as nuevo
-FROM  dwh.op_EmpresasSubsi02_v2 as p
-WHERE
-CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &lt;= &#39;2023-12-31&#39;
-        AND CONCAT(SUBSTRING(periodo, 1, 4), &#39;-&#39;, SUBSTRING(periodo, 5, 2), &#39;-01&#39;) &gt;= &#39;2022-01-01&#39;
-
-) as hh
-GROUP BY periodo, Tipo, cod, estado;
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:01:57,446 - INFO - LECTURA DE QUERYS
 </code></pre></div>
 
 <h3 id="conexion-a-bases-de-datos-y-carga-de-tablas">Conexión a Bases de Datos y Carga de Tablas<a class="headerlink" href="#conexion-a-bases-de-datos-y-carga-de-tablas" title="Permanent link">&para;</a></h3>
@@ -1869,14 +1791,14 @@ GROUP BY periodo, Tipo, cod, estado;
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;CONEXION A BASE DWH&#39;</span><span class="p">)</span>
 <span class="n">cargar_tablas</span><span class="p">(</span><span class="n">motor2</span><span class="p">,</span> <span class="n">qr_structure2</span><span class="p">,</span> <span class="n">df_structure2</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:20,427 - INFO - CONEXION A BASE MINERVA
-2024-10-26 16:21:20,963 - INFO - Cargando query 
-2024-10-26 16:21:29,959 - INFO - Cargada query --- 9.00 seconds ---
-2024-10-26 16:21:30,049 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 9.62 seconds ---
-2024-10-26 16:21:30,052 - INFO - CONEXION A BASE DWH
-2024-10-26 16:21:30,597 - INFO - Cargando query 
-2024-10-26 16:21:30,646 - INFO - Cargada query --- 0.05 seconds ---
-2024-10-26 16:21:30,735 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 0.68 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:01:57,461 - INFO - CONEXION A BASE MINERVA
+2024-10-28 18:01:58,021 - INFO - Cargando query 
+2024-10-28 18:07:44,474 - INFO - Cargada query, 565,159 registros finales obtenidos. --- 5.77 minutes ---
+2024-10-28 18:07:45,643 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 5.80 minutes ---
+2024-10-28 18:07:45,644 - INFO - CONEXION A BASE DWH
+2024-10-28 18:07:46,960 - INFO - Cargando query 
+2024-10-28 18:07:47,014 - INFO - Cargada query, 18 registros finales obtenidos. --- 0.05 seconds ---
+2024-10-28 18:07:47,106 - INFO - CARGUE TABLAS DESDE MYSQL --- query --- 1.46 seconds ---
 </code></pre></div>
 
 <h3 id="estandarizacion-y-creacion-de-identificadores-en-dataframe">Estandarización y Creación de Identificadores en DataFrame<a class="headerlink" href="#estandarizacion-y-creacion-de-identificadores-en-dataframe" title="Permanent link">&para;</a></h3>
@@ -1889,13 +1811,14 @@ GROUP BY periodo, Tipo, cod, estado;
     <span class="s1">&#39;tipide&#39;</span><span class="p">:</span> <span class="s1">&#39;CODIGO_DOCUMENTO&#39;</span><span class="p">,</span> 
     <span class="s1">&#39;tipper&#39;</span><span class="p">:</span> <span class="s1">&#39;TIPO_PErSONA&#39;</span><span class="p">,</span>  
     <span class="s1">&#39;codzon&#39;</span><span class="p">:</span> <span class="s1">&#39;Codigo_Zona&#39;</span><span class="p">,</span>             
-    <span class="s1">&#39;codest&#39;</span><span class="p">:</span> <span class="s1">&#39;Codigo_Estado&#39;</span><span class="p">,</span>           
+    <span class="s1">&#39;codest&#39;</span><span class="p">:</span> <span class="s1">&#39;COD_EST_INAC&#39;</span><span class="p">,</span>           
     <span class="s1">&#39;seRetiro&#39;</span><span class="p">:</span> <span class="s1">&#39;se_Retiro&#39;</span><span class="p">,</span>             
     <span class="s1">&#39;seAfilio&#39;</span><span class="p">:</span> <span class="s1">&#39;se_Afilio&#39;</span><span class="p">,</span>       
     <span class="s1">&#39;calsuc&#39;</span><span class="p">:</span> <span class="s1">&#39;Calificacion_Sucursal&#39;</span><span class="p">,</span> 
     <span class="s1">&#39;codciu&#39;</span><span class="p">:</span> <span class="s1">&#39;Codigo_Ciudad&#39;</span><span class="p">,</span>   
     <span class="s1">&#39;fecsis&#39;</span><span class="p">:</span> <span class="s1">&#39;Fecha_Sistema&#39;</span><span class="p">,</span> 
-    <span class="s1">&#39;MAX(NumTrab)&#39;</span><span class="p">:</span>  <span class="s1">&#39;NUM_TRAB&#39;</span>
+    <span class="s1">&#39;MAX(NumTrab)&#39;</span><span class="p">:</span>  <span class="s1">&#39;NUM_TRAB&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;estado&#39;</span> <span class="p">:</span> <span class="s1">&#39;COD_EST_AFIL&#39;</span>
 <span class="p">}</span>
 
 <span class="n">df_standar</span> <span class="o">=</span> <span class="n">convertir_columnas_mayusculas</span><span class="p">(</span><span class="n">op_sec_EmpresasSubsi02_v2</span><span class="p">,</span><span class="n">_names</span><span class="p">)</span>
@@ -1934,10 +1857,10 @@ GROUP BY periodo, Tipo, cod, estado;
     <span class="s1">&#39;CODIGO_DOCUMENTO&#39;</span><span class="p">,</span>
     <span class="s1">&#39;TIPO_PERSONA&#39;</span><span class="p">,</span>
     <span class="s1">&#39;CODIGO_ZONA&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;CODIGO_ESTADO&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;COD_EST_INAC&#39;</span><span class="p">,</span>
     <span class="s1">&#39;TIPO&#39;</span><span class="p">,</span>
     <span class="s1">&#39;COD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ESTADO&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;COD_EST_AFIL&#39;</span><span class="p">,</span>
     <span class="s1">&#39;SE_RETIRO&#39;</span><span class="p">,</span>
     <span class="s1">&#39;SE_AFILIO&#39;</span><span class="p">,</span>
     <span class="s1">&#39;NUEVO&#39;</span><span class="p">,</span>
@@ -1955,682 +1878,43 @@ GROUP BY periodo, Tipo, cod, estado;
     <span class="s1">&#39;FECHA_SISTEMA&#39;</span>
     <span class="p">]]</span>
 
-<span class="n">df_standar</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_standar</span><span class="p">[</span><span class="s1">&#39;PERIODO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
 </code></pre></div>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>PERIODO</th>
-      <th>ID</th>
-      <th>CODIGO_DOCUMENTO</th>
-      <th>TIPO_PERSONA</th>
-      <th>CODIGO_ZONA</th>
-      <th>CODIGO_ESTADO</th>
-      <th>TIPO</th>
-      <th>COD</th>
-      <th>ESTADO</th>
-      <th>SE_RETIRO</th>
-      <th>...</th>
-      <th>CODIGO_CIUDAD</th>
-      <th>TIPEMP</th>
-      <th>TIPSOC</th>
-      <th>NOMCOM</th>
-      <th>RAZSOC</th>
-      <th>NUMFEM</th>
-      <th>NUMMAS</th>
-      <th>CODACT</th>
-      <th>FECHA_SISTEMA</th>
-      <th>ID_AFILIADO</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>202201</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>146.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>202202</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>141.0</td>
-      <td>122.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>202203</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>142.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>202204</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>142.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>202205</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>143.0</td>
-      <td>122.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>202206</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>143.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>202207</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>143.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>202208</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>144.0</td>
-      <td>121.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>202209</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>143.0</td>
-      <td>122.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>202210</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>143.0</td>
-      <td>123.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>202211</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>140.0</td>
-      <td>124.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>202212</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>137.0</td>
-      <td>124.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>202301</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>142.0</td>
-      <td>128.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>202302</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>144.0</td>
-      <td>127.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>202303</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>147.0</td>
-      <td>128.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>202304</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>146.0</td>
-      <td>129.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>202305</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>146.0</td>
-      <td>129.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>202306</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>146.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>202307</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>148.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>202308</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>147.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>202309</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>149.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>202310</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>149.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>202311</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>150.0</td>
-      <td>130.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>202312</td>
-      <td>891780093</td>
-      <td>7</td>
-      <td>J</td>
-      <td>47001</td>
-      <td>None</td>
-      <td>Empresa</td>
-      <td>7891780093</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>47001</td>
-      <td>PRIVADO</td>
-      <td>00</td>
-      <td>None</td>
-      <td>CAJA DE COMPENSACION FAMILIAR DEL MAGDALENA</td>
-      <td>150.0</td>
-      <td>131.0</td>
-      <td>8551</td>
-      <td>1999-06-22</td>
-      <td>NI891780093</td>
-    </tr>
-  </tbody>
-</table>
-<p>24 rows × 25 columns</p>
-</div>
+<div class="codehilite"><pre><span></span><code>[&#39;202304&#39; &#39;202305&#39; &#39;202306&#39; &#39;202307&#39; &#39;202308&#39; &#39;202309&#39; &#39;202310&#39; &#39;202311&#39;
+ &#39;202312&#39; &#39;202401&#39; &#39;202402&#39; &#39;202403&#39; &#39;202404&#39; &#39;202405&#39; &#39;202406&#39; &#39;202407&#39;
+ &#39;202408&#39; &#39;202409&#39;]
+</code></pre></div>
 
 <h3 id="almacenamiento-de-datos-en-el-data-warehouse">Almacenamiento de Datos en el Data Warehouse<a class="headerlink" href="#almacenamiento-de-datos-en-el-data-warehouse" title="Permanent link">&para;</a></h3>
 <p>En esta última etapa, el código utiliza la función <code>guardar_en_dwh</code> para almacenar los DataFrames <code>op_EmpresasSubsi02_v2</code> y <code>op_sec_EmpresasSubsi02_v2</code> en el Data Warehouse. La primera llamada guarda <code>op_EmpresasSubsi02_v2</code> en una tabla con el mismo nombre en el DWH, y la segunda llamada almacena <code>op_sec_EmpresasSubsi02_v2</code> en la tabla <code>BD_Fact_Historico_Afiliacion_Empresas</code>. Los parámetros <code>multiple=False</code> y <code>if_exists='replace'</code> indican que las tablas se reemplazarán si ya existen y que no se manejarán datos en múltiples bloques, optimizando el proceso de inserción. Esta operación asegura que la información esté disponible y actualizada para futuras consultas o análisis.</p>
 <div class="highlight"><pre><span></span><code><span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">op_EmpresasSubsi02_v2</span><span class="p">,</span> <span class="s1">&#39;op_EmpresasSubsi02_v2&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 <span class="n">guardar_en_dwh</span><span class="p">(</span><span class="n">op_sec_EmpresasSubsi02_v2</span><span class="p">,</span> <span class="s1">&#39;BD_Fact_Historico_Afiliacion_Empresas&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:30,786 - INFO - Intentando conexión a la base DWH...
-2024-10-26 16:21:30,788 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 16:21:31,327 - INFO - Almacenando tabla única en DWH como op_EmpresasSubsi02_v2
-2024-10-26 16:21:32,284 - INFO - Tabla almacenada correctamente.
-2024-10-26 16:21:32,438 - INFO - ALMACENAMIENTO ---  --- 1.65 seconds ---
-2024-10-26 16:21:32,440 - INFO - Finalizando proceso de almacenamiento en DWH.
-2024-10-26 16:21:32,442 - INFO - Intentando conexión a la base DWH...
-2024-10-26 16:21:32,443 - INFO - Conexión a la base DWH establecida con éxito.
-2024-10-26 16:21:32,984 - INFO - Almacenando tabla única en DWH como BD_Fact_Historico_Afiliacion_Empresas
-2024-10-26 16:21:34,183 - INFO - Tabla almacenada correctamente.
-2024-10-26 16:21:34,321 - INFO - ALMACENAMIENTO ---  --- 1.88 seconds ---
-2024-10-26 16:21:34,322 - INFO - Finalizando proceso de almacenamiento en DWH.
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:07:47,141 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:07:47,143 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 18:07:47,695 - INFO - Almacenando tabla única en DWH como op_EmpresasSubsi02_v2
+2024-10-28 18:18:44,452 - INFO - Tabla almacenada correctamente. 565,159 registros finales obtenidos.
+2024-10-28 18:18:45,532 - INFO - ALMACENAMIENTO ---  --- 10.97 minutes ---
+2024-10-28 18:18:45,534 - INFO - Finalizando proceso de almacenamiento en DWH.
+2024-10-28 18:18:45,535 - INFO - Intentando conexión a la base DWH...
+2024-10-28 18:18:45,537 - INFO - Conexión a la base DWH establecida con éxito.
+2024-10-28 18:18:46,085 - INFO - Almacenando tabla única en DWH como BD_Fact_Historico_Afiliacion_Empresas
+2024-10-28 18:18:47,589 - INFO - Tabla almacenada correctamente. 18 registros finales obtenidos.
+2024-10-28 18:18:47,714 - INFO - ALMACENAMIENTO ---  --- 2.18 seconds ---
+2024-10-28 18:18:47,715 - INFO - Finalizando proceso de almacenamiento en DWH.
 </code></pre></div>
 
-<div class="highlight"><pre><span></span><code><span class="n">op_sec_EmpresasSubsi02_v2</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">op_sec_EmpresasSubsi02_v2</span><span class="p">[</span><span class="s1">&#39;PERIODO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>[&#39;PERIODO&#39;,
- &#39;ID_AFILIADO&#39;,
- &#39;ID&#39;,
- &#39;CODIGO_DOCUMENTO&#39;,
- &#39;TIPO_PERSONA&#39;,
- &#39;CODIGO_ZONA&#39;,
- &#39;CODIGO_ESTADO&#39;,
- &#39;TIPO&#39;,
- &#39;COD&#39;,
- &#39;ESTADO&#39;,
- &#39;SE_RETIRO&#39;,
- &#39;SE_AFILIO&#39;,
- &#39;NUEVO&#39;,
- &#39;CALIFICACION_SUCURSAL&#39;,
- &#39;TIPAPO&#39;,
- &#39;NUM_TRAB&#39;,
- &#39;CODIGO_CIUDAD&#39;,
- &#39;TIPEMP&#39;,
- &#39;TIPSOC&#39;,
- &#39;NOMCOM&#39;,
- &#39;RAZSOC&#39;,
- &#39;NUMFEM&#39;,
- &#39;NUMMAS&#39;,
- &#39;CODACT&#39;,
- &#39;FECHA_SISTEMA&#39;]
+<div class="codehilite"><pre><span></span><code>array([&#39;202304&#39;, &#39;202305&#39;, &#39;202306&#39;, &#39;202307&#39;, &#39;202308&#39;, &#39;202309&#39;,
+       &#39;202310&#39;, &#39;202311&#39;, &#39;202312&#39;, &#39;202401&#39;, &#39;202402&#39;, &#39;202403&#39;,
+       &#39;202404&#39;, &#39;202405&#39;, &#39;202406&#39;, &#39;202407&#39;, &#39;202408&#39;, &#39;202409&#39;],
+      dtype=object)
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FINAL ETL --- </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds ---&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="codehilite"><pre><span></span><code>2024-10-26 16:21:34,380 - INFO - FINAL ETL --- 14.05 seconds ---
+<div class="codehilite"><pre><span></span><code>2024-10-28 18:18:47,738 - INFO - FINAL ETL --- 1010.34 seconds ---
 </code></pre></div>
 
 
